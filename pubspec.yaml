@@ -10,6 +10,7 @@ workspace:
   - labs/01_realtime_chat
   - labs/02_hive_offline
   - labs/03_geo_tracking
+  - labs/04_camera_ocr
 
 environment:
   sdk: ">=3.13.0 <4.0.0"
