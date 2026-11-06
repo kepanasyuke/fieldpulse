@@ -36,13 +36,20 @@ class _FieldPulseAppState extends State<FieldPulseApp> {
     WidgetsBinding.instance.addObserver(_lifecycle);
     _authCubit.start();
     _appLockBloc.add(const AppLockStarted());
+    _listenPush();
+  }
 
+  void _listenPush() {
     if (getIt.isRegistered<PushService>()) {
-      _pushSubscription = getIt<PushService>().orderDeepLinks.listen((orderId) {
-        if (orderId.isNotEmpty) {
-          _router.push(AppRoute.orderDetailsPath(orderId));
-        }
-      });
+      _pushSubscription = getIt<PushService>().orderDeepLinks.listen(
+        _openOrder,
+      );
+    }
+  }
+
+  void _openOrder(String orderId) {
+    if (orderId.isNotEmpty) {
+      _router.push(AppRoute.orderDetailsPath(orderId));
     }
   }
 
