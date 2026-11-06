@@ -1,10 +1,10 @@
-name: fieldpulse
-description: FieldPulse — realtime-приложение для выездных инженеров (Flutter, Bloc, offline-first).
+﻿name: fieldpulse
+description: FieldPulse вЂ” realtime-РїСЂРёР»РѕР¶РµРЅРёРµ РґР»СЏ РІС‹РµР·РґРЅС‹С… РёРЅР¶РµРЅРµСЂРѕРІ (Flutter, Bloc, offline-first).
 publish_to: none
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.6.0 <4.0.0"
+  sdk: ">=3.9.0 <4.0.0"
   flutter: ">=3.27.0"
 
 dependencies:
