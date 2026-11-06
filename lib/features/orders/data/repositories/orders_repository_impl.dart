@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:fieldpulse/core/config/app_config.dart';
 import 'package:core_network/core_network.dart';
 import 'package:fieldpulse/core/models/coordinates.dart';
-import 'package:fieldpulse/core/network/dio_failure_mapper.dart';
 import 'package:fieldpulse/core/network/network_monitor.dart';
 import 'package:fieldpulse/core/platform/crash_reporter.dart';
 import 'package:core_storage/core_storage.dart';

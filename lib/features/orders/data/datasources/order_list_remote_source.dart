@@ -2,18 +2,17 @@ import 'dart:convert';
 
 import 'package:fieldpulse/core/isolates/payload_decoder.dart';
 import 'package:fieldpulse/core/network/api_client.dart';
-import 'package:fieldpulse/core/network/dio_failure_mapper.dart';
 import 'package:core_network/core_network.dart';
 import 'package:fieldpulse/features/orders/data/dto/order_dto.dart';
 
 class OrderListRemoteSource {
   OrderListRemoteSource({
-    required ApiClient apiClient,
+    required AppApiClient apiClient,
     required PayloadDecoder decoder,
   }) : _apiClient = apiClient,
        _decoder = decoder;
 
-  final ApiClient _apiClient;
+  final AppApiClient _apiClient;
   final PayloadDecoder _decoder;
 
   Future<Result<List<OrderDto>>> fetch({int limit = 100}) async {

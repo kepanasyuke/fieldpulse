@@ -6,8 +6,8 @@ import 'package:fieldpulse/core/network/auth_interceptor.dart';
 import 'package:fieldpulse/core/network/retry_interceptor.dart';
 import 'package:core_storage/core_storage.dart';
 
-class ApiClient {
-  ApiClient({
+class AppApiClient {
+  AppApiClient({
     required AppConfig config,
     required SecureTokenStore tokenStore,
     required Future<void> Function() onUnauthorized,

@@ -103,8 +103,8 @@ void _registerNetwork(AppConfig config, bool firebaseReady) {
         tokenStore: tokenStore,
       );
     })
-    ..registerLazySingleton<ApiClient>(
-      () => ApiClient(
+    ..registerLazySingleton<AppApiClient>(
+      () => AppApiClient(
         config: config,
         tokenStore: getIt<SecureTokenStore>(),
         onUnauthorized: () async => getIt<AuthRepository>().signOut(),
@@ -141,10 +141,12 @@ void _registerNetwork(AppConfig config, bool firebaseReady) {
 
 void _registerOrders() {
   getIt
-    ..registerLazySingleton<OrdersApi>(() => OrdersApi(getIt<ApiClient>().dio))
+    ..registerLazySingleton<OrdersApi>(
+      () => OrdersApi(getIt<AppApiClient>().dio),
+    )
     ..registerLazySingleton<OrderListRemoteSource>(
       () => OrderListRemoteSource(
-        apiClient: getIt<ApiClient>(),
+        apiClient: getIt<AppApiClient>(),
         decoder: getIt<PayloadDecoder>(),
       ),
     )
