@@ -81,6 +81,8 @@ lib/
     sync/         # очередь офлайн-мутаций, наблюдатель связности
 packages/         # общие пакеты монорепо (pub workspace)
   core_network/   # Result, Failure, ApiClient, маппинг ошибок Dio
+  core_storage/   # токены в защищённом хранилище, настройки
+  core_ui/        # тема Material 3 и адаптивные хелперы iOS/Android
 labs/             # маленькие приложения-лаборатории на общих пакетах
   01_realtime_chat/  # WebSocket-чат: статусы соединения, реконнект, тесты
 functions/        # Cloud Functions (TypeScript)
