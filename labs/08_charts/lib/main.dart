@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:lab_charts/src/chart_math.dart';
+import 'package:lab_charts/src/ui/bar_chart.dart';
+import 'package:lab_charts/src/ui/kit.dart';
 
 const List<ChartPoint> _week = [
   ChartPoint(label: 'пн', value: 420),
@@ -22,11 +24,15 @@ class ChartsApp extends StatelessWidget {
     return MaterialApp(
       title: 'Lab 08 · Charts',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00639B)),
-      ),
+      theme: _theme(),
       home: const ChartsPage(),
+    );
+  }
+
+  ThemeData _theme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00639B)),
     );
   }
 }
@@ -45,51 +51,56 @@ class _ChartsPageState extends State<ChartsPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Аналитика нарядов')),
+      body: _body(),
+    );
+  }
+
+  Widget _body() {
+    return ListView(padding: const EdgeInsets.all(16), children: _sections());
+  }
+
+  List<Widget> _sections() {
+    return [
+      _summaryCard(),
+      const SizedBox(height: 12),
+      _PeriodSwitcher(days: _days, onSelect: _selectDays),
+      const SizedBox(height: 12),
+      const BarChartCard(points: _week),
+    ];
+  }
+
+  Widget _summaryCard() {
     final values = _week.map((point) => point.value).toList(growable: false);
     final average = movingAverage(values, 3).last;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Аналитика нарядов')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _SummaryCard(average: average, total: maxValue(values)),
-          const SizedBox(height: 12),
-          _PeriodSwitcher(days: _days, onSelect: _selectDays),
-          const SizedBox(height: 12),
-          _BarChartCard(points: _week),
-        ],
-      ),
+    return TitledCard(
+      title: 'Сводка',
+      child: _SummaryLines(average: average, peak: maxValue(values)),
     );
   }
 }
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.average, required this.total});
+class _SummaryLines extends StatelessWidget {
+  const _SummaryLines({required this.average, required this.peak});
 
   final double average;
-  final double total;
+  final double peak;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Пик: ${formatCompact(total)}',
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 4),
-            Text('Среднее за 3 дня: ${formatCompact(average)}'),
-          ],
-        ),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _lines(),
     );
+  }
+
+  List<Widget> _lines() {
+    return [
+      ValueLine(label: 'Пик', value: formatCompact(peak)),
+      ValueLine(label: 'Среднее за 3 дня', value: formatCompact(average)),
+    ];
   }
 }
 
@@ -102,78 +113,19 @@ class _PeriodSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SegmentedButton<int>(
-      segments: const [
-        ButtonSegment<int>(value: 1, label: Text('Сутки')),
-        ButtonSegment<int>(value: 7, label: Text('Неделя')),
-        ButtonSegment<int>(value: 30, label: Text('Месяц')),
-      ],
+      segments: _segments(),
       selected: {days},
-      onSelectionChanged: (selection) => onSelect(selection.first),
+      onSelectionChanged: _onChanged,
     );
   }
-}
 
-class _BarChartCard extends StatelessWidget {
-  const _BarChartCard({required this.points});
-
-  final List<ChartPoint> points;
-
-  @override
-  Widget build(BuildContext context) {
-    final top = maxValue(
-      points.map((point) => point.value).toList(growable: false),
-    );
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SizedBox(
-          height: 220,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (final point in points) _Bar(point: point, max: top),
-            ],
-          ),
-        ),
-      ),
-    );
+  List<ButtonSegment<int>> _segments() {
+    return const [
+      ButtonSegment<int>(value: 1, label: Text('Сутки')),
+      ButtonSegment<int>(value: 7, label: Text('Неделя')),
+      ButtonSegment<int>(value: 30, label: Text('Месяц')),
+    ];
   }
-}
 
-class _Bar extends StatelessWidget {
-  const _Bar({required this.point, required this.max});
-
-  final ChartPoint point;
-  final double max;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(
-            formatCompact(point.value),
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
-          const SizedBox(height: 4),
-          SizedBox(
-            height: barFraction(value: point.value, max: max) * 160,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: scheme.primaryContainer,
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(point.label, style: Theme.of(context).textTheme.labelSmall),
-        ],
-      ),
-    );
-  }
+  void _onChanged(Set<int> selection) => onSelect(selection.first);
 }
