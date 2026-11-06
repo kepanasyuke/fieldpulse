@@ -1,5 +1,7 @@
 # FieldPulse
 
+[![CI](https://github.com/kepanasyuke/fieldpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/kepanasyuke/fieldpulse/actions/workflows/ci.yml)
+
 Realtime-приложение для выездных инженеров и курьеров сервисной компании: заказы приходят по WebSocket,
 работают офлайн, наряд закрывается с камерой, геолокацией и биометрией.
 
@@ -42,6 +44,30 @@ flutter test --coverage
 
 Покрыто: MVI-блок заказов (включая офлайн-ветку и outbox), маппинг DTO, isolate-поиск, realtime-клиент
 с реконнектом, виджет-тест карточки заказа.
+
+## Статус проверок
+
+Результаты последнего прогона GitHub Actions (Flutter 3.47.9 / Dart 3.13.7):
+
+| Проверка | Результат |
+|---|---|
+| `flutter pub get` + `build_runner` (Retrofit) | проходит |
+| `flutter analyze` (строгие проверки типов + flutter_lints) | 0 замечаний |
+| `flutter test` | 29 тестов, все зелёные |
+| `dart format --set-exit-if-changed` | расхождений нет |
+| `npm run build` в `functions/` (TypeScript) | собирается |
+
+Тесты и анализатор гоняются в CI, потому что на машине разработки провайдер обрывает загрузку
+пакетов с pub.dev на ~20 КБ (`flutter pub get` не завершается). Локально всё воспроизводится
+теми же командами:
+
+```bash
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter analyze
+flutter test --coverage
+dart format --output=none --set-exit-if-changed lib test
+```
 
 ## Структура
 
