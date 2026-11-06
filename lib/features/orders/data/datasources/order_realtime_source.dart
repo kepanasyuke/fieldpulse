@@ -23,13 +23,12 @@ class OrderRealtimeSource {
   final OrderMapper _mapper;
   final CrashReporter _crashReporter;
 
-  Stream<OrderEvent> get events async* {
-    await for (final frame in _client.frames) {
-      final event = _mapFrame(frame);
-      if (event != null) {
-        yield event;
-      }
-    }
+  Stream<OrderEvent> get events => _client.frames.expand(_eventsOf);
+
+  Iterable<OrderEvent> _eventsOf(Map<String, dynamic> frame) {
+    final event = _mapFrame(frame);
+
+    return event == null ? const [] : [event];
   }
 
   Stream<RealtimeStatus> get connectionStatus => _client.statuses;
