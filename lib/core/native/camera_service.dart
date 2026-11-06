@@ -15,18 +15,34 @@ class CameraService {
     int quality = 85,
   }) async {
     try {
-      final picked = await _picker.pickImage(
+      final picked = await _pick(
         source: source,
-        maxWidth: maxWidth.toDouble(),
-        imageQuality: quality,
-        preferredCameraDevice: CameraDevice.rear,
+        maxWidth: maxWidth,
+        quality: quality,
       );
-      if (picked == null) {
-        return const Err(PermissionFailure('Съёмка отменена'));
-      }
-      return Ok(File(picked.path));
+
+      return _resultFor(picked);
     } on Exception catch (error) {
       return Err(PermissionFailure('Камера недоступна: $error'));
     }
+  }
+
+  Future<XFile?> _pick({
+    required ImageSource source,
+    required int maxWidth,
+    required int quality,
+  }) {
+    return _picker.pickImage(
+      source: source,
+      maxWidth: maxWidth.toDouble(),
+      imageQuality: quality,
+      preferredCameraDevice: CameraDevice.rear,
+    );
+  }
+
+  Result<File> _resultFor(XFile? picked) {
+    return picked == null
+        ? const Err(PermissionFailure('Съёмка отменена'))
+        : Ok(File(picked.path));
   }
 }
