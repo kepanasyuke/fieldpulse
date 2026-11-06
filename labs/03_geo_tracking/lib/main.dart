@@ -58,36 +58,42 @@ class _GeoPageState extends State<GeoPage> {
   bool _locating = false;
 
   Future<void> _locate() async {
-    setState(() {
-      _locating = true;
-      _status = 'Запрашиваю геопозицию…';
-    });
+    _update(locating: true, status: 'Запрашиваю геопозицию…');
+    final granted = await _ensurePermission();
+    if (granted) {
+      await _readPosition();
+    } else {
+      _update(locating: false, status: 'Доступ к геопозиции не выдан');
+    }
+  }
 
+  Future<bool> _ensurePermission() async {
+    final current = await Geolocator.checkPermission();
+    final resolved = current == LocationPermission.denied
+        ? await Geolocator.requestPermission()
+        : current;
+
+    return resolved == LocationPermission.whileInUse ||
+        resolved == LocationPermission.always;
+  }
+
+  Future<void> _readPosition() async {
     try {
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        if (mounted) {
-          setState(() {
-            _status = 'Доступ к геопозиции не выдан';
-            _locating = false;
-          });
-        }
-        return;
-      }
+      _applyPosition(await _position());
+    } on Exception catch (error) {
+      _update(locating: false, status: 'Геолокация недоступна: $error');
+    }
+  }
 
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 15),
-        ),
-      );
-      if (!mounted) {
-        return;
-      }
+  Future<Position> _position() => Geolocator.getCurrentPosition(
+    locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      timeLimit: Duration(seconds: 15),
+    ),
+  );
+
+  void _applyPosition(Position position) {
+    if (mounted) {
       setState(() {
         _origin = GeoPoint(
           latitude: position.latitude,
@@ -96,70 +102,108 @@ class _GeoPageState extends State<GeoPage> {
         _status = 'Моя точка: $_origin (±${position.accuracy.round()} м)';
         _locating = false;
       });
-    } on Exception catch (error) {
-      if (!mounted) {
-        return;
-      }
+    }
+  }
+
+  void _update({required bool locating, required String status}) {
+    if (mounted) {
       setState(() {
-        _status = 'Геолокация недоступна: $error';
-        _locating = false;
+        _locating = locating;
+        _status = status;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final ordered = sortByDistance(_stops, _origin);
-    final total = totalRouteLength(_stops, _origin);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Маршрут дня')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(_status, style: Theme.of(context).textTheme.bodyMedium),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Длина маршрута: ${formatDistance(total)}',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  FilledButton.icon(
-                    onPressed: _locating ? null : _locate,
-                    icon: const Icon(Icons.my_location_rounded),
-                    label: Text(
-                      _locating ? 'Определяю…' : 'Определить мою точку',
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          _RouteSummary(
+            status: _status,
+            total: formatDistance(totalRouteLength(_stops, _origin)),
+            isLocating: _locating,
+            onLocate: _locate,
           ),
           const SizedBox(height: 12),
-          for (final stop in ordered)
-            Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: scheme.primaryContainer,
-                  child: Text('${ordered.indexOf(stop) + 1}'),
-                ),
-                title: Text(stop.title),
-                subtitle: Text(stop.point.toString()),
-                trailing: Text(
-                  formatDistance(stop.distanceFrom(_origin)),
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-              ),
+          for (final (index, stop) in ordered.indexed)
+            _StopTile(
+              number: index + 1,
+              stop: stop,
+              distance: formatDistance(stop.distanceFrom(_origin)),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _RouteSummary extends StatelessWidget {
+  const _RouteSummary({
+    required this.status,
+    required this.total,
+    required this.isLocating,
+    required this.onLocate,
+  });
+
+  final String status;
+  final String total;
+  final bool isLocating;
+  final Future<void> Function() onLocate;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(status, style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 8),
+            Text('Длина маршрута: $total', style: theme.textTheme.titleMedium),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: isLocating ? null : onLocate,
+              icon: const Icon(Icons.my_location_rounded),
+              label: Text(isLocating ? 'Определяю…' : 'Определить мою точку'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StopTile extends StatelessWidget {
+  const _StopTile({
+    required this.number,
+    required this.stop,
+    required this.distance,
+  });
+
+  final int number;
+  final RouteStop stop;
+  final String distance;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          child: Text('$number'),
+        ),
+        title: Text(stop.title),
+        subtitle: Text(stop.point.toString()),
+        trailing: Text(distance, style: Theme.of(context).textTheme.labelLarge),
       ),
     );
   }
