@@ -14,16 +14,16 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController(
+  final TextEditingController _email = TextEditingController(
     text: 'engineer@fieldpulse.dev',
   );
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _password = TextEditingController();
   bool _obscure = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _email.dispose();
+    _password.dispose();
     super.dispose();
   }
 
@@ -32,8 +32,8 @@ class _LoginPageState extends State<LoginPage> {
     if (isValid) {
       FocusScope.of(context).unfocus();
       await getIt<AuthCubit>().signIn(
-        email: _emailController.text,
-        password: _passwordController.text,
+        email: _email.text,
+        password: _password.text,
       );
     }
   }
@@ -43,49 +43,81 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 440),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              child: BlocConsumer<AuthCubit, AuthState>(
-                listenWhen: _hasNewError,
-                listener: _showError,
-                builder: (context, state) => Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const _BrandHeader(),
-                      const SizedBox(height: 32),
-                      _EmailField(
-                        controller: _emailController,
-                        errorText: state.fieldErrors['email'],
-                      ),
-                      const SizedBox(height: 16),
-                      _PasswordField(
-                        controller: _passwordController,
-                        errorText: state.fieldErrors['password'],
-                        obscure: _obscure,
-                        onToggle: _toggleObscure,
-                        onSubmit: _submit,
-                      ),
-                      const SizedBox(height: 24),
-                      _SubmitButton(
-                        isLoading: state.isSubmitting,
-                        onPressed: _submit,
-                      ),
-                      const SizedBox(height: 16),
-                      const _BiometricHint(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
+      body: _PageShell(child: _LoginSection(data: _data())),
+    );
+  }
+
+  _LoginFormData _data() {
+    return _LoginFormData(
+      formKey: _formKey,
+      email: _email,
+      password: _password,
+      obscure: _obscure,
+      onSubmit: _submit,
+      onToggle: _toggleObscure,
+    );
+  }
+}
+
+class _LoginFormData {
+  const _LoginFormData({
+    required this.formKey,
+    required this.email,
+    required this.password,
+    required this.obscure,
+    required this.onSubmit,
+    required this.onToggle,
+  });
+
+  final GlobalKey<FormState> formKey;
+  final TextEditingController email;
+  final TextEditingController password;
+  final bool obscure;
+  final Future<void> Function() onSubmit;
+  final VoidCallback onToggle;
+}
+
+class _PageShell extends StatelessWidget {
+  const _PageShell({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Center(child: _MaxWidth(child: child)),
+    );
+  }
+}
+
+class _MaxWidth extends StatelessWidget {
+  const _MaxWidth({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 440),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: child,
       ),
+    );
+  }
+}
+
+class _LoginSection extends StatelessWidget {
+  const _LoginSection({required this.data});
+
+  final _LoginFormData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: _hasNewError,
+      listener: _showError,
+      builder: _builder,
     );
   }
 
@@ -100,6 +132,63 @@ class _LoginPageState extends State<LoginPage> {
         ..showSnackBar(SnackBar(content: Text(error)));
     }
   }
+
+  Widget _builder(BuildContext context, AuthState state) {
+    return _LoginForm(data: data, state: state);
+  }
+}
+
+class _LoginForm extends StatelessWidget {
+  const _LoginForm({required this.data, required this.state});
+
+  final _LoginFormData data;
+  final AuthState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: data.formKey,
+      child: _FormColumn(data: data, state: state),
+    );
+  }
+}
+
+class _FormColumn extends StatelessWidget {
+  const _FormColumn({required this.data, required this.state});
+
+  final _LoginFormData data;
+  final AuthState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: _parts(),
+    );
+  }
+
+  List<Widget> _parts() {
+    return [
+      const _BrandHeader(),
+      const SizedBox(height: 32),
+      _EmailField(
+        controller: data.email,
+        errorText: state.fieldErrors['email'],
+      ),
+      const SizedBox(height: 16),
+      _PasswordField(
+        controller: data.password,
+        errorText: state.fieldErrors['password'],
+        obscure: data.obscure,
+        onToggle: data.onToggle,
+        onSubmit: data.onSubmit,
+      ),
+      const SizedBox(height: 24),
+      _SubmitButton(isLoading: state.isSubmitting, onPressed: data.onSubmit),
+      const SizedBox(height: 16),
+      const _BiometricHint(),
+    ];
+  }
 }
 
 class _BrandHeader extends StatelessWidget {
@@ -109,28 +198,32 @@ class _BrandHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      children: [
-        Icon(Icons.bolt_rounded, size: 56, color: theme.colorScheme.primary),
-        const SizedBox(height: 16),
-        Text(
-          'FieldPulse',
-          textAlign: TextAlign.center,
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Наряды, статусы и фотоотчёты — офлайн и в реальном времени',
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
+    return Column(children: _parts(theme));
   }
+
+  List<Widget> _parts(ThemeData theme) {
+    return [
+      Icon(Icons.bolt_rounded, size: 56, color: theme.colorScheme.primary),
+      const SizedBox(height: 16),
+      Text(
+        'FieldPulse',
+        textAlign: TextAlign.center,
+        style: _titleStyle(theme),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        'Наряды, статусы и фотоотчёты — офлайн и в реальном времени',
+        textAlign: TextAlign.center,
+        style: _subtitleStyle(theme),
+      ),
+    ];
+  }
+
+  TextStyle? _titleStyle(ThemeData theme) =>
+      theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700);
+
+  TextStyle? _subtitleStyle(ThemeData theme) => theme.textTheme.bodyMedium
+      ?.copyWith(color: theme.colorScheme.onSurfaceVariant);
 }
 
 class _EmailField extends StatelessWidget {
@@ -146,16 +239,20 @@ class _EmailField extends StatelessWidget {
       keyboardType: TextInputType.emailAddress,
       autofillHints: const [AutofillHints.email],
       textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        labelText: 'Рабочая почта',
-        errorText: errorText,
-        prefixIcon: const Icon(Icons.mail_outline),
-      ),
-      validator: _validateEmail,
+      decoration: _decoration(),
+      validator: _validate,
     );
   }
 
-  String? _validateEmail(String? value) {
+  InputDecoration _decoration() {
+    return InputDecoration(
+      labelText: 'Рабочая почта',
+      errorText: errorText,
+      prefixIcon: const Icon(Icons.mail_outline),
+    );
+  }
+
+  String? _validate(String? value) {
     final email = value?.trim() ?? '';
     return email.contains('@') ? null : 'Укажите почту';
   }
@@ -184,23 +281,31 @@ class _PasswordField extends StatelessWidget {
       autofillHints: const [AutofillHints.password],
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (_) => onSubmit(),
-      decoration: InputDecoration(
-        labelText: 'Пароль',
-        errorText: errorText,
-        prefixIcon: const Icon(Icons.lock_outline),
-        suffixIcon: IconButton(
-          tooltip: obscure ? 'Показать' : 'Скрыть',
-          onPressed: onToggle,
-          icon: Icon(
-            obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-          ),
-        ),
-      ),
-      validator: _validatePassword,
+      decoration: _decoration(),
+      validator: _validate,
     );
   }
 
-  String? _validatePassword(String? value) =>
+  InputDecoration _decoration() {
+    return InputDecoration(
+      labelText: 'Пароль',
+      errorText: errorText,
+      prefixIcon: const Icon(Icons.lock_outline),
+      suffixIcon: _toggleButton(),
+    );
+  }
+
+  Widget _toggleButton() {
+    return IconButton(
+      tooltip: obscure ? 'Показать' : 'Скрыть',
+      onPressed: onToggle,
+      icon: Icon(
+        obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+      ),
+    );
+  }
+
+  String? _validate(String? value) =>
       (value ?? '').length < 6 ? 'Минимум 6 символов' : null;
 }
 
@@ -236,10 +341,10 @@ class _BiometricHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isCupertinoPlatform) {
-      return const SizedBox.shrink();
-    }
+    return context.isCupertinoPlatform ? _hint() : const SizedBox.shrink();
+  }
 
+  Widget _hint() {
     return const Padding(
       padding: EdgeInsets.only(top: 8),
       child: Text(
