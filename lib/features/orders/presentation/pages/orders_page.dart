@@ -45,12 +45,22 @@ class _OrdersViewState extends State<_OrdersView> {
 
   void _onSearchChanged(String value) {
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 350), () {
-      if (!mounted) {
-        return;
-      }
+    _debounce = Timer(
+      const Duration(milliseconds: 350),
+      () => _applySearch(value),
+    );
+  }
+
+  void _applySearch(String value) {
+    if (mounted) {
       context.read<OrdersBloc>().add(OrdersSearchChanged(value));
-    });
+    }
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    context.read<OrdersBloc>().add(const OrdersSearchChanged(''));
+    setState(() {});
   }
 
   Future<void> _confirmSignOut() async {
@@ -106,30 +116,10 @@ class _OrdersViewState extends State<_OrdersView> {
                 onSyncPressed: () =>
                     context.read<OrdersBloc>().add(const OrdersSyncRequested()),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: _onSearchChanged,
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    hintText: 'Номер, адрес, клиент',
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    suffixIcon: _searchController.text.isEmpty
-                        ? null
-                        : IconButton(
-                            tooltip: 'Очистить',
-                            onPressed: () {
-                              _searchController.clear();
-                              context.read<OrdersBloc>().add(
-                                const OrdersSearchChanged(''),
-                              );
-                              setState(() {});
-                            },
-                            icon: const Icon(Icons.close_rounded),
-                          ),
-                  ),
-                ),
+              _SearchField(
+                controller: _searchController,
+                onChanged: _onSearchChanged,
+                onClear: _clearSearch,
               ),
               _FilterBar(
                 selected: state.statusFilter,
@@ -142,6 +132,45 @@ class _OrdersViewState extends State<_OrdersView> {
         },
       ),
     );
+  }
+}
+
+class _SearchField extends StatelessWidget {
+  const _SearchField({
+    required this.controller,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: 'Номер, адрес, клиент',
+          prefixIcon: const Icon(Icons.search_rounded),
+          suffixIcon: _clearButton(),
+        ),
+      ),
+    );
+  }
+
+  Widget? _clearButton() {
+    return controller.text.isEmpty
+        ? null
+        : IconButton(
+            tooltip: 'Очистить',
+            onPressed: onClear,
+            icon: const Icon(Icons.close_rounded),
+          );
   }
 }
 
