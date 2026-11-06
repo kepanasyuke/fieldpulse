@@ -32,14 +32,14 @@ jobs:
       - name: Кодогенерация Retrofit
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Форматирование
-        run: dart format --output=none --set-exit-if-changed $(git ls-files lib test | grep '\.dart$')
-
       - name: Анализатор
         run: flutter analyze
 
       - name: Тесты
         run: flutter test --coverage
+
+      - name: Форматирование
+        run: dart format --output=none --set-exit-if-changed $(git ls-files lib test | grep '\.dart$')
 
       - uses: actions/upload-artifact@v4
         if: always()
