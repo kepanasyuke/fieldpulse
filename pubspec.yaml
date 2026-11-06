@@ -12,6 +12,7 @@ workspace:
   - labs/03_geo_tracking
   - labs/04_camera_ocr
   - labs/05_payments
+  - labs/06_push_deeplink
 
 environment:
   sdk: ">=3.13.0 <4.0.0"
