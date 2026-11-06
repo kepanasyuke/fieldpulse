@@ -77,62 +77,84 @@ class _OrdersViewState extends State<_OrdersView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Наряды'),
-        actions: [
-          IconButton(
-            tooltip: 'Обновить',
-            onPressed: () =>
-                context.read<OrdersBloc>().add(const OrdersRefreshed()),
-            icon: const Icon(Icons.refresh_rounded),
-          ),
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'logout') {
-                unawaited(_confirmSignOut());
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem<String>(value: 'logout', child: Text('Выйти')),
-            ],
-          ),
-        ],
+    return Scaffold(appBar: _appBar(), body: _body());
+  }
+
+  AppBar _appBar() {
+    return AppBar(title: const Text('Наряды'), actions: _actions());
+  }
+
+  List<Widget> _actions() {
+    return [
+      IconButton(
+        tooltip: 'Обновить',
+        onPressed: _refresh,
+        icon: const Icon(Icons.refresh_rounded),
       ),
-      body: BlocConsumer<OrdersBloc, OrdersState>(
-        listenWhen: (previous, current) =>
-            previous.banner != current.banner && current.banner != null,
-        listener: (context, state) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(state.banner!)));
-        },
-        builder: (context, state) {
-          return Column(
-            children: [
-              SyncBanner(
-                pendingCount: state.pendingUpdates,
-                isSyncing: state.isRefreshing,
-                onSyncPressed: () =>
-                    context.read<OrdersBloc>().add(const OrdersSyncRequested()),
-              ),
-              _SearchField(
-                controller: _searchController,
-                onChanged: _onSearchChanged,
-                onClear: _clearSearch,
-              ),
-              _FilterBar(
-                selected: state.statusFilter,
-                onSelected: (status) =>
-                    context.read<OrdersBloc>().add(OrdersFilterChanged(status)),
-              ),
-              Expanded(child: _OrdersBody(state: state)),
-            ],
-          );
-        },
+      PopupMenuButton<String>(
+        onSelected: _onMenuSelected,
+        itemBuilder: _menuItems,
       ),
+    ];
+  }
+
+  List<PopupMenuEntry<String>> _menuItems(BuildContext context) {
+    return const [PopupMenuItem<String>(value: 'logout', child: Text('Выйти'))];
+  }
+
+  void _refresh() => context.read<OrdersBloc>().add(const OrdersRefreshed());
+
+  void _onMenuSelected(String value) {
+    if (value == 'logout') {
+      unawaited(_confirmSignOut());
+    }
+  }
+
+  Widget _body() {
+    return BlocConsumer<OrdersBloc, OrdersState>(
+      listenWhen: _hasNewBanner,
+      listener: _showBanner,
+      builder: _builder,
     );
   }
+
+  bool _hasNewBanner(OrdersState previous, OrdersState current) =>
+      previous.banner != current.banner && current.banner != null;
+
+  void _showBanner(BuildContext context, OrdersState state) {
+    final banner = state.banner;
+    if (banner != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(banner)));
+    }
+  }
+
+  Widget _builder(BuildContext context, OrdersState state) {
+    return Column(children: _sections(state));
+  }
+
+  List<Widget> _sections(OrdersState state) {
+    return [
+      SyncBanner(
+        pendingCount: state.pendingUpdates,
+        isSyncing: state.isRefreshing,
+        onSyncPressed: _sync,
+      ),
+      _SearchField(
+        controller: _searchController,
+        onChanged: _onSearchChanged,
+        onClear: _clearSearch,
+      ),
+      _FilterBar(selected: state.statusFilter, onSelected: _onFilterSelected),
+      Expanded(child: _OrdersBody(state: state)),
+    ];
+  }
+
+  void _sync() => context.read<OrdersBloc>().add(const OrdersSyncRequested());
+
+  void _onFilterSelected(OrderStatus? status) =>
+      context.read<OrdersBloc>().add(OrdersFilterChanged(status));
 }
 
 class _SearchField extends StatelessWidget {
