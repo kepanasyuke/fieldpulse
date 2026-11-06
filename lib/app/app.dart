@@ -60,21 +60,25 @@ class _FieldPulseAppState extends State<FieldPulseApp> {
         BlocProvider<AuthCubit>.value(value: _authCubit),
         BlocProvider<AppLockBloc>.value(value: _appLockBloc),
       ],
-      child: BlocBuilder<AppLockBloc, AppLockState>(
-        builder: (context, lockState) {
-          return MaterialApp.router(
-            title: 'FieldPulse',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light(),
-            darkTheme: AppTheme.dark(),
-            routerConfig: _router,
-            builder: (context, child) => AppLockScreen(
-              locked: lockState.isLocked,
-              child: child ?? const SizedBox.shrink(),
-            ),
-          );
-        },
-      ),
+      child: BlocBuilder<AppLockBloc, AppLockState>(builder: _buildApp),
+    );
+  }
+
+  Widget _buildApp(BuildContext context, AppLockState state) {
+    return MaterialApp.router(
+      title: 'FieldPulse',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      routerConfig: _router,
+      builder: (context, child) => _lockScreen(child, state),
+    );
+  }
+
+  Widget _lockScreen(Widget? child, AppLockState state) {
+    return AppLockScreen(
+      locked: state.isLocked,
+      child: child ?? const SizedBox.shrink(),
     );
   }
 }
