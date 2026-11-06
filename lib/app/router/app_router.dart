@@ -38,14 +38,15 @@ GoRouter buildRouter({required AuthCubit authCubit}) {
         routes: [
           GoRoute(
             path: ':id',
-            builder: (context, state) => OrderDetailsPage(
-              orderId: state.pathParameters['id'] ?? '',
-            ),
+            builder: (context, state) =>
+                OrderDetailsPage(orderId: state.pathParameters['id'] ?? ''),
           ),
         ],
       ),
     ],
-    errorBuilder: (context, state) =>
-        Directionality(textDirection: TextDirection.ltr, child: Text(state.error?.toString() ?? 'Ошибка маршрута')),
+    errorBuilder: (context, state) => Directionality(
+      textDirection: TextDirection.ltr,
+      child: Text(state.error?.toString() ?? 'Ошибка маршрута'),
+    ),
   );
 }

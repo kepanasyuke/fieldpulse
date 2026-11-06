@@ -126,7 +126,10 @@ class RealtimeClient {
     _heartbeat?.cancel();
     _heartbeat = Timer.periodic(heartbeatInterval, (_) {
       _channel?.sink.add(
-        jsonEncode({'type': 'ping', 'ts': DateTime.now().toUtc().toIso8601String()}),
+        jsonEncode({
+          'type': 'ping',
+          'ts': DateTime.now().toUtc().toIso8601String(),
+        }),
       );
     });
   }

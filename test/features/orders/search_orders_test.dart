@@ -62,12 +62,18 @@ void main() {
     });
 
     test('ищет по номеру наряда без учёта регистра', () async {
-      final result = await const SearchOrders()(orders: orders, query: 'fp-2003');
+      final result = await const SearchOrders()(
+        orders: orders,
+        query: 'fp-2003',
+      );
       expect(result.single.id, '3');
     });
 
     test('учитывает статус в поисковом индексе', () async {
-      final result = await const SearchOrders()(orders: orders, query: 'закрыт');
+      final result = await const SearchOrders()(
+        orders: orders,
+        query: 'закрыт',
+      );
       expect(result.single.id, '2');
     });
 
@@ -88,7 +94,10 @@ void main() {
       );
 
       expect(result, hasLength(250));
-      expect(result.every((order) => order.title.contains('Аварийный')), isTrue);
+      expect(
+        result.every((order) => order.title.contains('Аварийный')),
+        isTrue,
+      );
     });
   });
 }

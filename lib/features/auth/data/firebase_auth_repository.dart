@@ -86,22 +86,25 @@ class FirebaseAuthRepository implements AuthRepository {
     );
   }
 
-  Failure _mapAuthException(FirebaseAuthException error) => switch (error.code) {
-    'invalid-email' => const ValidationFailure(
-      'Некорректный адрес почты',
-      fieldErrors: {'email': 'Проверьте формат адреса'},
-    ),
-    'user-disabled' => const UnauthorizedFailure('Учётная запись заблокирована'),
-    'user-not-found' ||
-    'wrong-password' ||
-    'invalid-credential' => const ValidationFailure(
-      'Неверная почта или пароль',
-      fieldErrors: {'password': 'Проверьте пароль'},
-    ),
-    'too-many-requests' => const UnauthorizedFailure(
-      'Слишком много попыток, попробуйте позже',
-    ),
-    'network-request-failed' => const NetworkFailure(),
-    _ => UnknownFailure(error.message ?? 'Не удалось выполнить вход'),
-  };
+  Failure _mapAuthException(FirebaseAuthException error) =>
+      switch (error.code) {
+        'invalid-email' => const ValidationFailure(
+          'Некорректный адрес почты',
+          fieldErrors: {'email': 'Проверьте формат адреса'},
+        ),
+        'user-disabled' => const UnauthorizedFailure(
+          'Учётная запись заблокирована',
+        ),
+        'user-not-found' ||
+        'wrong-password' ||
+        'invalid-credential' => const ValidationFailure(
+          'Неверная почта или пароль',
+          fieldErrors: {'password': 'Проверьте пароль'},
+        ),
+        'too-many-requests' => const UnauthorizedFailure(
+          'Слишком много попыток, попробуйте позже',
+        ),
+        'network-request-failed' => const NetworkFailure(),
+        _ => UnknownFailure(error.message ?? 'Не удалось выполнить вход'),
+      };
 }

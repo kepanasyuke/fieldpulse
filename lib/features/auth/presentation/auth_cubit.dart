@@ -71,9 +71,7 @@ class AuthCubit extends Cubit<AuthState> {
     if (state.isSubmitting) {
       return;
     }
-    emit(
-      state.copyWith(isSubmitting: true, clearError: true),
-    );
+    emit(state.copyWith(isSubmitting: true, clearError: true));
 
     final result = await _repository.signIn(email: email, password: password);
     result.fold(

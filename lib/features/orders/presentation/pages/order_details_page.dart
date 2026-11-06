@@ -17,8 +17,8 @@ class OrderDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrderDetailsBloc>(
-      create: (_) => getIt<OrderDetailsBloc>()
-        ..add(OrderDetailsStarted(orderId)),
+      create: (_) =>
+          getIt<OrderDetailsBloc>()..add(OrderDetailsStarted(orderId)),
       child: const _OrderDetailsView(),
     );
   }
@@ -67,7 +67,9 @@ class _OrderDetailsView extends StatelessWidget {
             ],
           ),
           body: switch (order) {
-            null when state.isLoading => const Center(child: AdaptiveProgress()),
+            null when state.isLoading => const Center(
+              child: AdaptiveProgress(),
+            ),
             null => Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -77,7 +79,10 @@ class _OrderDetailsView extends StatelessWidget {
                 ),
               ),
             ),
-            final Order value => _OrderDetailsContent(order: value, state: state),
+            final Order value => _OrderDetailsContent(
+              order: value,
+              state: state,
+            ),
           },
           bottomNavigationBar: order == null
               ? null
@@ -348,7 +353,9 @@ class _ActionBar extends StatelessWidget {
                     )
                   : Text(
                       primary?.actionLabel ??
-                          (order.status.isTerminal ? 'Наряд закрыт' : 'Нет действий'),
+                          (order.status.isTerminal
+                              ? 'Наряд закрыт'
+                              : 'Нет действий'),
                     ),
             ),
           ),

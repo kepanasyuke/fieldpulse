@@ -68,8 +68,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            state.error ??
-                                'Подтвердите личность, чтобы вернуться к нарядам',
+                            state.error ?? 'Подтвердите личность, чтобы вернуться к нарядам',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),

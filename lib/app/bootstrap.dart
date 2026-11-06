@@ -44,7 +44,9 @@ Future<bool> _initFirebase() async {
   try {
     await Firebase.initializeApp();
   } on Exception catch (error) {
-    debugPrint('Firebase не сконфигурирован, работаем в offline-режиме: $error');
+    debugPrint(
+      'Firebase не сконфигурирован, работаем в offline-режиме: $error',
+    );
     return false;
   }
 
@@ -58,6 +60,8 @@ Future<bool> _initFirebase() async {
     return true;
   };
 
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+    !kDebugMode,
+  );
   return true;
 }

@@ -76,7 +76,9 @@ class OrderCard extends StatelessWidget {
                   Icon(
                     Icons.schedule_rounded,
                     size: 14,
-                    color: order.isOverdue ? scheme.error : scheme.onSurfaceVariant,
+                    color: order.isOverdue
+                        ? scheme.error
+                        : scheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 4),
                   Text(

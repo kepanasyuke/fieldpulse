@@ -25,7 +25,9 @@ class SyncCoordinator {
 
   Future<void> start() async {
     _online = await _networkMonitor.isOnline();
-    _subscription ??= _networkMonitor.onlineChanges.listen(_onConnectivityChanged);
+    _subscription ??= _networkMonitor.onlineChanges.listen(
+      _onConnectivityChanged,
+    );
     _retryTimer ??= Timer.periodic(retryInterval, (_) => _flushIfNeeded());
     await _flushIfNeeded();
   }

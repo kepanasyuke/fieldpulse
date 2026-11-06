@@ -37,7 +37,9 @@ final class CacheFailure extends Failure {
 }
 
 final class GeolocationFailure extends Failure {
-  const GeolocationFailure([super.message = 'Не удалось определить местоположение']);
+  const GeolocationFailure([
+    super.message = 'Не удалось определить местоположение',
+  ]);
 }
 
 final class PermissionFailure extends Failure {

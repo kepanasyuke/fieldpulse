@@ -31,6 +31,8 @@ class SettingsStore {
   Future<void> setThemeMode(String mode) =>
       _preferences.setString(_themeKey, mode);
 
-  Future<void> markSynced({DateTime? at}) =>
-      _preferences.setString(_lastSyncKey, (at ?? DateTime.now()).toIso8601String());
+  Future<void> markSynced({DateTime? at}) => _preferences.setString(
+    _lastSyncKey,
+    (at ?? DateTime.now()).toIso8601String(),
+  );
 }

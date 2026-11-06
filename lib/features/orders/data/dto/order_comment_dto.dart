@@ -13,13 +13,16 @@ class OrderCommentDto {
   final String text;
   final DateTime createdAt;
 
-  factory OrderCommentDto.fromJson(Map<String, dynamic> json) => OrderCommentDto(
-    orderId: json['order_id'] as String? ?? json['orderId'] as String? ?? '',
-    author: json['author'] as String? ?? 'Диспетчер',
-    text: json['text'] as String? ?? '',
-    createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
-        DateTime.now(),
-  );
+  factory OrderCommentDto.fromJson(Map<String, dynamic> json) =>
+      OrderCommentDto(
+        orderId:
+            json['order_id'] as String? ?? json['orderId'] as String? ?? '',
+        author: json['author'] as String? ?? 'Диспетчер',
+        text: json['text'] as String? ?? '',
+        createdAt:
+            DateTime.tryParse(json['created_at'] as String? ?? '') ??
+            DateTime.now(),
+      );
 
   factory OrderCommentDto.fromFirestore(
     String orderId,

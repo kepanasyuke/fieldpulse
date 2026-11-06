@@ -28,11 +28,8 @@ void main() {
     auth = _MockAuthRepository();
   });
 
-  AppLockBloc build() => AppLockBloc(
-    biometrics: biometrics,
-    settings: settings,
-    auth: auth,
-  );
+  AppLockBloc build() =>
+      AppLockBloc(biometrics: biometrics, settings: settings, auth: auth);
 
   group('AppLockBloc', () {
     blocTest<AppLockBloc, AppLockState>(
@@ -69,9 +66,8 @@ void main() {
         when(() => biometrics.isAvailable()).thenAnswer((_) async => true);
         when(() => settings.biometricEnabled).thenReturn(true);
         when(() => auth.currentUser).thenReturn(user);
-        when(() => biometrics.authenticate()).thenAnswer(
-          (_) async => const Ok<void>(null),
-        );
+        when(() => biometrics.authenticate())
+            .thenAnswer((_) async => const Ok<void>(null));
       },
       build: build,
       act: (bloc) async {
@@ -84,7 +80,11 @@ void main() {
       wait: const Duration(milliseconds: 50),
       expect: () => [
         const AppLockState(biometricAvailable: true, isLocked: true),
-        const AppLockState(biometricAvailable: true, isLocked: true, isVerifying: true),
+        const AppLockState(
+          biometricAvailable: true,
+          isLocked: true,
+          isVerifying: true,
+        ),
         const AppLockState(biometricAvailable: true, isLocked: false),
       ],
     );
@@ -103,8 +103,11 @@ void main() {
       act: (bloc) => bloc.add(const AppLockUnlockRequested()),
       wait: const Duration(milliseconds: 50),
       expect: () => [
-        isA<AppLockState>()
-            .having((state) => state.isVerifying, 'isVerifying', true),
+        isA<AppLockState>().having(
+          (state) => state.isVerifying,
+          'isVerifying',
+          true,
+        ),
         isA<AppLockState>()
             .having((state) => state.failedAttempts, 'failedAttempts', 1)
             .having((state) => state.error, 'error', contains('Отпечаток')),

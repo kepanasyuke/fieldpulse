@@ -21,11 +21,12 @@ class OrderLocalDataSource {
   final Box<dynamic> _outboxBox;
   final OrderMapper _mapper;
 
-  List<PendingAction> readPendingActions() => _outboxBox.values
-      .whereType<Map<dynamic, dynamic>>()
-      .map(PendingAction.fromMap)
-      .toList(growable: false)
-    ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+  List<PendingAction> readPendingActions() =>
+      _outboxBox.values
+          .whereType<Map<dynamic, dynamic>>()
+          .map(PendingAction.fromMap)
+          .toList(growable: false)
+        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
   Set<String> get _pendingOrderIds =>
       readPendingActions().map((action) => action.orderId).toSet();

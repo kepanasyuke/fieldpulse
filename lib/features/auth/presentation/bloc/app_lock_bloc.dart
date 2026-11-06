@@ -94,7 +94,10 @@ class AppLockBloc extends Bloc<AppLockEvent, AppLockState> {
     emit(
       state.copyWith(
         biometricAvailable: available,
-        isLocked: available && _settings.biometricEnabled && _auth.currentUser != null,
+        isLocked:
+            available &&
+            _settings.biometricEnabled &&
+            _auth.currentUser != null,
       ),
     );
   }

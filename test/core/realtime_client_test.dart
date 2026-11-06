@@ -27,7 +27,10 @@ void main() {
       expect(requested, isNotNull);
       expect(requested!.queryParameters['token'], 'token-123');
       expect(requested!.queryParameters['client'], 'flutter');
-      expect(statuses, [RealtimeStatus.connecting, RealtimeStatus.reconnecting]);
+      expect(statuses, [
+        RealtimeStatus.connecting,
+        RealtimeStatus.reconnecting,
+      ]);
       expect(client.status, RealtimeStatus.reconnecting);
 
       await subscription.cancel();

@@ -57,7 +57,9 @@ Future<void> configureDependencies({
     ..registerSingleton<AppConfig>(config)
     ..registerSingleton<SettingsStore>(SettingsStore(preferences))
     ..registerSingleton<CrashReporter>(
-      CrashReporter(crashlytics: firebaseReady ? FirebaseCrashlytics.instance : null),
+      CrashReporter(
+        crashlytics: firebaseReady ? FirebaseCrashlytics.instance : null,
+      ),
     )
     ..registerLazySingleton<SecureTokenStore>(
       () => SecureTokenStore(
@@ -75,7 +77,9 @@ Future<void> configureDependencies({
 
 void _registerPlatformServices() {
   getIt
-    ..registerLazySingleton<NetworkMonitor>(() => NetworkMonitor(Connectivity()))
+    ..registerLazySingleton<NetworkMonitor>(
+      () => NetworkMonitor(Connectivity()),
+    )
     ..registerLazySingleton<PayloadDecoder>(PayloadDecoder.new)
     ..registerLazySingleton<BiometricService>(
       () => BiometricService(LocalAuthentication()),
@@ -84,9 +88,7 @@ void _registerPlatformServices() {
     ..registerLazySingleton<LocationService>(
       () => LocationService(GeolocatorPlatform.instance),
     )
-    ..registerLazySingleton<SearchOrders>(
-      () => const SearchOrders(),
-    )
+    ..registerLazySingleton<SearchOrders>(() => const SearchOrders())
     ..registerLazySingleton<OrderMapper>(OrderMapper.new);
 }
 

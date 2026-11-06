@@ -31,16 +31,19 @@ class SyncBanner extends StatelessWidget {
                 child: CircularProgressIndicator.adaptive(strokeWidth: 2),
               )
             else
-              Icon(Icons.cloud_off_rounded, size: 18, color: scheme.onTertiaryContainer),
+              Icon(
+                Icons.cloud_off_rounded,
+                size: 18,
+                color: scheme.onTertiaryContainer,
+              ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 pendingCount == 1
                     ? '1 изменение ждёт отправки'
                     : '$pendingCount изменений ждут отправки',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onTertiaryContainer,
-                ),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: scheme.onTertiaryContainer),
               ),
             ),
             if (onSyncPressed != null)

@@ -9,26 +9,24 @@ class FirestoreCommentsSource {
   final FirebaseFirestore _firestore;
 
   CollectionReference<Map<String, dynamic>> _comments(String orderId) =>
-      _firestore
-          .collection('orders')
-          .doc(orderId)
-          .collection('comments');
+      _firestore.collection('orders').doc(orderId).collection('comments');
 
-  Stream<OrderComment> watch(String orderId) => _comments(orderId)
-      .orderBy('createdAt', descending: false)
-      .limitToLast(50)
-      .snapshots()
-      .map(
-        (snapshot) => snapshot.docs
-            .map(
-              (doc) => OrderCommentDto.fromFirestore(
-                orderId,
-                _normalize(doc.data()),
-              ).toDomain(),
-            )
-            .toList(growable: false),
-      )
-      .expand((comments) => comments);
+  Stream<OrderComment> watch(String orderId) =>
+      _comments(orderId)
+          .orderBy('createdAt', descending: false)
+          .limitToLast(50)
+          .snapshots()
+          .map(
+            (snapshot) => snapshot.docs
+                .map(
+                  (doc) => OrderCommentDto.fromFirestore(
+                    orderId,
+                    _normalize(doc.data()),
+                  ).toDomain(),
+                )
+                .toList(growable: false),
+          )
+          .expand((comments) => comments);
 
   Future<void> add({
     required String orderId,

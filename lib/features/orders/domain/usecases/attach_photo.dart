@@ -4,9 +4,11 @@ import 'package:fieldpulse/core/utils/result.dart';
 import 'package:fieldpulse/features/orders/domain/repositories/order_repository.dart';
 
 class AttachPhoto {
-  AttachPhoto({required OrderRepository repository, required CameraService camera})
-    : _repository = repository,
-      _camera = camera;
+  AttachPhoto({
+    required OrderRepository repository,
+    required CameraService camera,
+  }) : _repository = repository,
+       _camera = camera;
 
   final OrderRepository _repository;
   final CameraService _camera;
@@ -23,7 +25,9 @@ class AttachPhoto {
           ok: (_) => const Ok<void>(null),
           err: (failure) => Err<void>(
             failure is PermissionFailure
-                ? const ValidationFailure('Фото обязательно для закрытия наряда')
+                ? const ValidationFailure(
+                    'Фото обязательно для закрытия наряда',
+                  )
                 : failure,
           ),
         );

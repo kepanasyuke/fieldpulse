@@ -308,7 +308,9 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     if (filter == null) {
       return orders;
     }
-    return orders.where((order) => order.status == filter).toList(growable: false);
+    return orders
+        .where((order) => order.status == filter)
+        .toList(growable: false);
   }
 
   @override

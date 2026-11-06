@@ -37,9 +37,7 @@ class RetryInterceptor extends Interceptor {
 
     final backoff = baseDelay * pow(2, attempt - 1).toDouble();
     final capped = backoff > maxDelay ? maxDelay : backoff;
-    final jitter = Duration(
-      milliseconds: _random.nextInt(250),
-    );
+    final jitter = Duration(milliseconds: _random.nextInt(250));
     await Future<void>.delayed(capped + jitter);
 
     final options = err.requestOptions..extra[_attemptKey] = attempt;
@@ -66,8 +64,7 @@ class RetryInterceptor extends Interceptor {
       DioExceptionType.connectionTimeout ||
       DioExceptionType.receiveTimeout ||
       DioExceptionType.sendTimeout => true,
-      DioExceptionType.badResponse =>
-        (err.response?.statusCode ?? 0) >= 500,
+      DioExceptionType.badResponse => (err.response?.statusCode ?? 0) >= 500,
       _ => false,
     };
   }

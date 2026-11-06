@@ -23,16 +23,18 @@ class SearchOrders {
 
   List<Order> _filter(List<Order> orders, String query) {
     final tokens = query.split(RegExp(r'\s+')).where((t) => t.isNotEmpty);
-    return orders.where((order) {
-      final haystack = [
-        order.number,
-        order.title,
-        order.customer,
-        order.address,
-        order.status.label,
-        order.comment ?? '',
-      ].join(' ').toLowerCase();
-      return tokens.every(haystack.contains);
-    }).toList(growable: false);
+    return orders
+        .where((order) {
+          final haystack = [
+            order.number,
+            order.title,
+            order.customer,
+            order.address,
+            order.status.label,
+            order.comment ?? '',
+          ].join(' ').toLowerCase();
+          return tokens.every(haystack.contains);
+        })
+        .toList(growable: false);
   }
 }

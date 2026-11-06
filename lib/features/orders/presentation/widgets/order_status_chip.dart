@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:fieldpulse/features/orders/domain/entities/order.dart';
 
 class OrderStatusChip extends StatelessWidget {
-  const OrderStatusChip({super.key, required this.status, this.compact = false});
+  const OrderStatusChip({
+    super.key,
+    required this.status,
+    this.compact = false,
+  });
 
   final OrderStatus status;
   final bool compact;
@@ -12,10 +16,22 @@ class OrderStatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final (foreground, background) = switch (status) {
-      OrderStatus.created => (scheme.onSurfaceVariant, scheme.surfaceContainerHighest),
-      OrderStatus.assigned => (scheme.onPrimaryContainer, scheme.primaryContainer),
-      OrderStatus.inProgress => (scheme.onTertiaryContainer, scheme.tertiaryContainer),
-      OrderStatus.done => (scheme.onSecondaryContainer, scheme.secondaryContainer),
+      OrderStatus.created => (
+        scheme.onSurfaceVariant,
+        scheme.surfaceContainerHighest,
+      ),
+      OrderStatus.assigned => (
+        scheme.onPrimaryContainer,
+        scheme.primaryContainer,
+      ),
+      OrderStatus.inProgress => (
+        scheme.onTertiaryContainer,
+        scheme.tertiaryContainer,
+      ),
+      OrderStatus.done => (
+        scheme.onSecondaryContainer,
+        scheme.secondaryContainer,
+      ),
       OrderStatus.cancelled => (scheme.onErrorContainer, scheme.errorContainer),
     };
 
@@ -30,8 +46,11 @@ class OrderStatusChip extends StatelessWidget {
       ),
       child: Text(
         status.label,
-        style: (compact ? Theme.of(context).textTheme.labelSmall : Theme.of(context).textTheme.labelMedium)
-            ?.copyWith(color: foreground, fontWeight: FontWeight.w600),
+        style:
+            (compact
+                    ? Theme.of(context).textTheme.labelSmall
+                    : Theme.of(context).textTheme.labelMedium)
+                ?.copyWith(color: foreground, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -61,9 +80,8 @@ class PriorityBadge extends StatelessWidget {
         const SizedBox(width: 2),
         Text(
           priority.label,
-          style: Theme.of(
-            context,
-          ).textTheme.labelSmall?.copyWith(color: scheme.error),
+          style: Theme.of(context).textTheme.labelSmall
+              ?.copyWith(color: scheme.error),
         ),
       ],
     );

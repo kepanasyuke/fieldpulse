@@ -220,9 +220,9 @@ class OrdersRepositoryImpl implements OrderRepository {
     if (cached == null) {
       return;
     }
-    final hasPending = _local
-        .readPendingActions()
-        .any((action) => action.orderId == orderId);
+    final hasPending = _local.readPendingActions().any(
+      (action) => action.orderId == orderId,
+    );
     await _local.upsert(cached.copyWith(hasPendingUpdate: hasPending));
   }
 

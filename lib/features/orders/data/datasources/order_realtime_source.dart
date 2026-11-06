@@ -16,11 +16,7 @@ class OrderRealtimeSource {
        _mapper = mapper,
        _crashReporter = crashReporter;
 
-  static const Set<String> _ignoredTypes = {
-    'pong',
-    'presence',
-    'heartbeat',
-  };
+  static const Set<String> _ignoredTypes = {'pong', 'presence', 'heartbeat'};
 
   final RealtimeClient _client;
   final OrderMapper _mapper;

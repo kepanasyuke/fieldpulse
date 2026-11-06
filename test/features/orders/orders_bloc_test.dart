@@ -45,9 +45,8 @@ void main() {
 
     when(() => repository.watchCachedOrders()).thenAnswer((_) => cache.stream);
     when(() => repository.watchEvents()).thenAnswer((_) => events.stream);
-    when(
-      () => repository.watchPendingUpdatesCount(),
-    ).thenAnswer((_) => Stream<int>.value(2));
+    when(() => repository.watchPendingUpdatesCount())
+        .thenAnswer((_) => Stream<int>.value(2));
   });
 
   tearDown(() async {
@@ -57,9 +56,8 @@ void main() {
   });
 
   test('стартует с загрузки и показывает кэш после синхронизации', () async {
-    when(
-      () => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')),
-    ).thenAnswer((_) async => Ok<List<Order>>([buildOrder()]));
+    when(() => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer((_) async => Ok<List<Order>>([buildOrder()]));
 
     bloc.add(const OrdersStarted());
     await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -67,15 +65,12 @@ void main() {
     expect(bloc.state.status, OrdersListStatus.ready);
     expect(bloc.state.visibleOrders, hasLength(1));
     expect(bloc.state.pendingUpdates, 2);
-    verify(
-      () => repository.fetchOrders(forceRefresh: true),
-    ).called(1);
+    verify(() => repository.fetchOrders(forceRefresh: true)).called(1);
   });
 
   test('остаётся рабочим на кэше, если сеть упала', () async {
-    when(
-      () => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')),
-    ).thenAnswer((_) async => const Err<List<Order>>(NetworkFailure()));
+    when(() => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer((_) async => const Err<List<Order>>(NetworkFailure()));
 
     bloc.add(const OrdersStarted());
     await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -88,9 +83,8 @@ void main() {
   });
 
   test('показывает ошибку, если нет ни сети, ни кэша', () async {
-    when(
-      () => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')),
-    ).thenAnswer((_) async => const Err<List<Order>>(NetworkFailure()));
+    when(() => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer((_) async => const Err<List<Order>>(NetworkFailure()));
 
     bloc.add(const OrdersStarted());
     await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -100,14 +94,13 @@ void main() {
   });
 
   test('поиск фильтрует и очищает список', () async {
-    when(
-      () => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')),
-    ).thenAnswer(
-      (_) async => Ok<List<Order>>([
-        buildOrder(),
-        buildOrder(id: 'o-2', number: 'FP-2000', status: OrderStatus.done),
-      ]),
-    );
+    when(() => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer(
+          (_) async => Ok<List<Order>>([
+            buildOrder(),
+            buildOrder(id: 'o-2', number: 'FP-2000', status: OrderStatus.done),
+          ]),
+        );
 
     bloc.add(const OrdersStarted());
     await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -123,14 +116,13 @@ void main() {
   });
 
   test('фильтр по статусу комбинируется с поиском', () async {
-    when(
-      () => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')),
-    ).thenAnswer(
-      (_) async => Ok<List<Order>>([
-        buildOrder(),
-        buildOrder(id: 'o-2', number: 'FP-2000', status: OrderStatus.done),
-      ]),
-    );
+    when(() => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer(
+          (_) async => Ok<List<Order>>([
+            buildOrder(),
+            buildOrder(id: 'o-2', number: 'FP-2000', status: OrderStatus.done),
+          ]),
+        );
 
     bloc.add(const OrdersStarted());
     await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -145,9 +137,8 @@ void main() {
   });
 
   test('realtime-событие превращается в баннер', () async {
-    when(
-      () => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')),
-    ).thenAnswer((_) async => Ok<List<Order>>([buildOrder()]));
+    when(() => repository.fetchOrders(forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer((_) async => Ok<List<Order>>([buildOrder()]));
 
     bloc.add(const OrdersStarted());
     await Future<void>.delayed(const Duration(milliseconds: 30));

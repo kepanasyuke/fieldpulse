@@ -74,10 +74,7 @@ void main() {
       MaterialApp(
         theme: AppTheme.light(),
         home: Scaffold(
-          body: OrderCard(
-            order: buildOrder(),
-            onTap: () => tapped = true,
-          ),
+          body: OrderCard(order: buildOrder(), onTap: () => tapped = true),
         ),
       ),
     );

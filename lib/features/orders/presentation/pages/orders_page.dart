@@ -133,9 +133,8 @@ class _OrdersViewState extends State<_OrdersView> {
               ),
               _FilterBar(
                 selected: state.statusFilter,
-                onSelected: (status) => context.read<OrdersBloc>().add(
-                  OrdersFilterChanged(status),
-                ),
+                onSelected: (status) =>
+                    context.read<OrdersBloc>().add(OrdersFilterChanged(status)),
               ),
               Expanded(child: _OrdersBody(state: state)),
             ],
@@ -193,40 +192,40 @@ class _OrdersBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return switch (state.status) {
-      OrdersListStatus.initial || OrdersListStatus.loading => const Center(
-        child: AdaptiveProgress(),
-      ),
+      OrdersListStatus.initial ||
+      OrdersListStatus.loading => const Center(child: AdaptiveProgress()),
       OrdersListStatus.failure => _FailureView(
         message: state.failure?.message ?? 'Не удалось загрузить наряды',
         onRetry: () => context.read<OrdersBloc>().add(const OrdersRefreshed()),
       ),
-      OrdersListStatus.ready => state.isEmpty
-          ? _EmptyView(
-              hasFilters: state.hasFilters,
-              onReset: () {
-                context.read<OrdersBloc>()
-                  ..add(const OrdersSearchChanged(''))
-                  ..add(const OrdersFilterChanged(null));
-              },
-            )
-          : RefreshIndicator.adaptive(
-              onRefresh: () async {
-                context.read<OrdersBloc>().add(const OrdersRefreshed());
-              },
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                itemCount: state.visibleOrders.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final order = state.visibleOrders[index];
-                  return OrderCard(
-                    order: order,
-                    onTap: () =>
-                        context.push(AppRoute.orderDetailsPath(order.id)),
-                  );
+      OrdersListStatus.ready =>
+        state.isEmpty
+            ? _EmptyView(
+                hasFilters: state.hasFilters,
+                onReset: () {
+                  context.read<OrdersBloc>()
+                    ..add(const OrdersSearchChanged(''))
+                    ..add(const OrdersFilterChanged(null));
                 },
+              )
+            : RefreshIndicator.adaptive(
+                onRefresh: () async {
+                  context.read<OrdersBloc>().add(const OrdersRefreshed());
+                },
+                child: ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                  itemCount: state.visibleOrders.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final order = state.visibleOrders[index];
+                    return OrderCard(
+                      order: order,
+                      onTap: () =>
+                          context.push(AppRoute.orderDetailsPath(order.id)),
+                    );
+                  },
+                ),
               ),
-            ),
     };
   }
 }
@@ -246,7 +245,11 @@ class _EmptyView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.inbox_outlined, size: 48, color: scheme.onSurfaceVariant),
+            Icon(
+              Icons.inbox_outlined,
+              size: 48,
+              color: scheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 12),
             Text(
               hasFilters ? 'Ничего не найдено' : 'Нарядов пока нет',
@@ -258,9 +261,8 @@ class _EmptyView extends StatelessWidget {
                   ? 'Измените запрос или сбросьте фильтры'
                   : 'Новые задания появятся здесь автоматически',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(color: scheme.onSurfaceVariant),
             ),
             if (hasFilters) ...[
               const SizedBox(height: 16),

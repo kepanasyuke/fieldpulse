@@ -7,7 +7,8 @@ class LifecycleObserver with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.hidden || state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.paused) {
       onBackground();
     }
   }

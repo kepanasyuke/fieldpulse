@@ -15,13 +15,5 @@ analyzer:
 
 linter:
   rules:
-    always_declare_return_types: true
     avoid_print: true
-    prefer_const_constructors: true
-    prefer_const_constructors_in_immutables: true
-    prefer_const_declarations: true
-    prefer_final_locals: true
     prefer_single_quotes: true
-    require_trailing_commas: true
-    unawaited_futures: true
-    use_super_parameters: true

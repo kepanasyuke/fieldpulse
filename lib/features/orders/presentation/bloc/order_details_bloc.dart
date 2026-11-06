@@ -137,9 +137,7 @@ class OrderDetailsBloc extends Bloc<OrderDetailsEvent, OrderDetailsState> {
       ok: (order) => emit(
         state.copyWith(order: order, isLoading: false, clearError: true),
       ),
-      err: (failure) => emit(
-        state.copyWith(isLoading: false, error: failure),
-      ),
+      err: (failure) => emit(state.copyWith(isLoading: false, error: failure)),
     );
   }
 
@@ -225,10 +223,7 @@ class OrderDetailsBloc extends Bloc<OrderDetailsEvent, OrderDetailsState> {
     final result = await _attachPhoto(order.id);
     result.fold(
       ok: (_) => emit(
-        state.copyWith(
-          isBusy: false,
-          message: 'Фото прикреплено к наряду',
-        ),
+        state.copyWith(isBusy: false, message: 'Фото прикреплено к наряду'),
       ),
       err: (failure) => emit(state.copyWith(isBusy: false, error: failure)),
     );
