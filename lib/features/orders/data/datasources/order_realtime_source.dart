@@ -49,56 +49,7 @@ class OrderRealtimeSource {
     final payload = frame['payload'];
 
     try {
-      switch (type) {
-        case 'orders.snapshot':
-          if (payload is! List) {
-            return null;
-          }
-          final orders = payload
-              .whereType<Map<String, dynamic>>()
-              .map(OrderDto.fromJson)
-              .map(_mapper.toDomain)
-              .toList(growable: false);
-          return OrdersSnapshotEvent(orders);
-
-        case 'order.upserted':
-          if (payload is! Map) {
-            return null;
-          }
-          final dto = OrderDto.fromJson(Map<String, dynamic>.from(payload));
-          if (dto.id.isEmpty) {
-            return null;
-          }
-          return OrderUpsertedEvent(
-            _mapper.toDomain(dto),
-            reason: frame['reason'] as String?,
-          );
-
-        case 'order.removed':
-          if (payload is! Map) {
-            return null;
-          }
-          final orderId = payload['id'];
-          return orderId is String ? OrderRemovedEvent(orderId) : null;
-
-        case 'order.comment':
-          if (payload is! Map) {
-            return null;
-          }
-          final dto = OrderCommentDto.fromJson(
-            Map<String, dynamic>.from(payload),
-          );
-          return dto.orderId.isEmpty
-              ? null
-              : OrderCommentEvent(_mapper.toDomainComment(dto));
-
-        case 'connection':
-          final online = payload is Map && payload['online'] == true;
-          return OrderConnectionEvent(online: online);
-
-        default:
-          return null;
-      }
+      return _eventFor(type, payload, frame);
     } on Object catch (error, stackTrace) {
       _crashReporter.recordHandled(
         error,
@@ -107,5 +58,71 @@ class OrderRealtimeSource {
       );
       return null;
     }
+  }
+
+  OrderEvent? _eventFor(
+    String type,
+    Object? payload,
+    Map<String, dynamic> frame,
+  ) {
+    return switch (type) {
+      'orders.snapshot' => _snapshot(payload),
+      'order.upserted' => _upserted(payload, frame),
+      'order.removed' => _removed(payload),
+      'order.comment' => _comment(payload),
+      'connection' => _connection(payload),
+      _ => null,
+    };
+  }
+
+  OrderEvent? _snapshot(Object? payload) {
+    return payload is List ? OrdersSnapshotEvent(_orders(payload)) : null;
+  }
+
+  List<Order> _orders(List<dynamic> payload) {
+    return payload
+        .whereType<Map<String, dynamic>>()
+        .map(OrderDto.fromJson)
+        .map(_mapper.toDomain)
+        .toList(growable: false);
+  }
+
+  OrderEvent? _upserted(Object? payload, Map<String, dynamic> frame) {
+    final dto = _orderDto(payload);
+    final isValid = dto != null && dto.id.isNotEmpty;
+
+    return isValid
+        ? OrderUpsertedEvent(
+            _mapper.toDomain(dto),
+            reason: frame['reason'] as String?,
+          )
+        : null;
+  }
+
+  OrderEvent? _removed(Object? payload) {
+    final orderId = payload is Map ? payload['id'] : null;
+
+    return orderId is String ? OrderRemovedEvent(orderId) : null;
+  }
+
+  OrderEvent? _comment(Object? payload) {
+    final dto = payload is Map
+        ? OrderCommentDto.fromJson(Map<String, dynamic>.from(payload))
+        : null;
+    final isValid = dto != null && dto.orderId.isNotEmpty;
+
+    return isValid ? OrderCommentEvent(_mapper.toDomainComment(dto)) : null;
+  }
+
+  OrderEvent? _connection(Object? payload) {
+    final online = payload is Map && payload['online'] == true;
+
+    return OrderConnectionEvent(online: online);
+  }
+
+  OrderDto? _orderDto(Object? payload) {
+    return payload is Map
+        ? OrderDto.fromJson(Map<String, dynamic>.from(payload))
+        : null;
   }
 }

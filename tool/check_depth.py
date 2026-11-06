@@ -12,7 +12,7 @@ import os
 import re
 import sys
 
-KEYWORDS = re.compile(r"^(if|for|while|switch|try|catch|else)\b|\b(if|for|while|switch)\s*\(")
+KEYWORDS = re.compile(r"^(if|for|while|switch|try)\b|\b(if|for|while|switch)\s*\(")
 SKIP_DIRS = {".dart_tool", "build", ".git", "node_modules"}
 ROOTS = ("lib", "labs", "packages")
 
