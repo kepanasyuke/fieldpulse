@@ -1,0 +1,20 @@
+name: lab_motion_kit
+description: "Лаборатория 07 — анимации и UI-kit: длительности, кривые, переходы."
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
