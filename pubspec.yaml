@@ -6,6 +6,8 @@ version: 1.0.0+1
 workspace:
   - packages/core_network
   - labs/01_realtime_chat
+  - labs/02_hive_offline
+  - labs/03_geo_tracking
 
 environment:
   sdk: ">=3.13.0 <4.0.0"
