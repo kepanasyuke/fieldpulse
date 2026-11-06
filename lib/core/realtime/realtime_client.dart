@@ -52,7 +52,16 @@ class RealtimeClient {
   Future<void> connect() async {
     if (_closed ||
         _status == RealtimeStatus.connected ||
-        _status == RealtimeStatus.connecting) {
+        _status == RealtimeStatus.connecting ||
+        _status == RealtimeStatus.reconnecting) {
+      return;
+    }
+    _attempt = 0;
+    await _open();
+  }
+
+  Future<void> _open() async {
+    if (_closed || _status == RealtimeStatus.connected) {
       return;
     }
     _setStatus(
@@ -149,7 +158,7 @@ class RealtimeClient {
 
     _reconnectTimer = Timer(delay, () {
       unawaited(_disposeChannel());
-      unawaited(connect());
+      unawaited(_open());
     });
   }
 
