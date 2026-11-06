@@ -20,7 +20,7 @@ void main() {
       final message = ChatMessage.fromJson({'text': 42});
 
       expect(message.author, 'guest');
-      expect(message.text, '');
+      expect(message.text, '42');
     });
   });
 

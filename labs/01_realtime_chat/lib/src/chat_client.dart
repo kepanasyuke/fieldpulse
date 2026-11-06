@@ -17,8 +17,8 @@ class ChatMessage {
   final DateTime sentAt;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
-    author: json['author'] as String? ?? 'guest',
-    text: json['text'] as String? ?? '',
+    author: json['author']?.toString() ?? 'guest',
+    text: json['text']?.toString() ?? '',
     sentAt:
         DateTime.tryParse(json['sent_at'] as String? ?? '') ?? DateTime.now(),
   );
