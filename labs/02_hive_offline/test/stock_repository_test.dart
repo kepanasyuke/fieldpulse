@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -129,6 +130,6 @@ void main() {
     expect(emissions.first, 1);
     expect(emissions.last, 6);
 
-    await subscription.cancel();
+    unawaited(subscription.cancel());
   });
 }

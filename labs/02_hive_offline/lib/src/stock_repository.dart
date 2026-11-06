@@ -178,6 +178,7 @@ class StockRepository {
           await subscription.cancel();
         }
         subscriptions.clear();
+        await controller.close();
       },
     );
 

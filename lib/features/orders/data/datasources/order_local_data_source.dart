@@ -133,6 +133,7 @@ class OrderLocalDataSource {
           await subscription.cancel();
         }
         subscriptions.clear();
+        await controller.close();
       },
     );
 
