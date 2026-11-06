@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:fieldpulse/core/error/failure.dart';
 import 'package:fieldpulse/core/native/biometric_service.dart';
 import 'package:fieldpulse/core/storage/settings_store.dart';
 import 'package:fieldpulse/core/utils/result.dart';
@@ -96,7 +97,8 @@ void main() {
         when(() => settings.biometricEnabled).thenReturn(true);
         when(() => auth.currentUser).thenReturn(user);
         when(() => biometrics.authenticate()).thenAnswer(
-          (_) async => const Err<void>(Failure('Отпечаток не распознан')),
+          (_) async =>
+              const Err<void>(ValidationFailure('Отпечаток не распознан')),
         );
       },
       build: build,

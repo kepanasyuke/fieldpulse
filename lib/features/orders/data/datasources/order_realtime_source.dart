@@ -22,8 +22,14 @@ class OrderRealtimeSource {
   final OrderMapper _mapper;
   final CrashReporter _crashReporter;
 
-  Stream<OrderEvent> get events =>
-      _client.frames.map(_mapFrame).whereType<OrderEvent>();
+  Stream<OrderEvent> get events async* {
+    await for (final frame in _client.frames) {
+      final event = _mapFrame(frame);
+      if (event != null) {
+        yield event;
+      }
+    }
+  }
 
   Stream<RealtimeStatus> get connectionStatus => _client.statuses;
 

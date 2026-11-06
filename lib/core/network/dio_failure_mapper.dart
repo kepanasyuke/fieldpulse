@@ -13,7 +13,8 @@ extension DioFailureMapper on Object {
 Failure _mapDioException(DioException exception) => switch (exception.type) {
   DioExceptionType.connectionTimeout ||
   DioExceptionType.sendTimeout ||
-  DioExceptionType.receiveTimeout => const TimeoutFailure(),
+  DioExceptionType.receiveTimeout ||
+  DioExceptionType.transformTimeout => const TimeoutFailure(),
   DioExceptionType.connectionError => const NetworkFailure(),
   DioExceptionType.badCertificate => const NetworkFailure(
     'Недействительный сертификат сервера',

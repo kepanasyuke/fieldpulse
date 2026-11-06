@@ -21,13 +21,6 @@ class AppTheme {
       colorScheme: scheme,
       platform: platform,
       visualDensity: VisualDensity.adaptivePlatformDensity,
-      pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {
-          TargetPlatform.android: ZoomPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-        },
-      ),
       appBarTheme: AppBarTheme(
         centerTitle: platform == TargetPlatform.iOS,
         elevation: 0,
