@@ -39,87 +39,139 @@ class _CapturePageState extends State<CapturePage> {
   String? _error;
 
   Future<void> _capture(ImageSource source) async {
-    setState(() => _error = null);
+    _showError(null);
     try {
-      final picked = await _picker.pickImage(
-        source: source,
-        maxWidth: 1600,
-        imageQuality: 85,
-      );
-      if (picked == null) {
-        return;
+      final photo = await _pick(source);
+      if (photo != null) {
+        _applyPhoto(photo);
       }
-
-      final reading = _parser.parse(_sampleOcr);
-      setState(() {
-        _photo = File(picked.path);
-        if (reading == null) {
-          _error = 'На фото не найдено показаний';
-        } else {
-          _readings.insert(0, reading);
-        }
-      });
     } on Exception catch (error) {
-      setState(() => _error = 'Камера недоступна: $error');
+      _showError('Камера недоступна: $error');
     }
   }
 
+  Future<File?> _pick(ImageSource source) async {
+    final picked = await _picker.pickImage(
+      source: source,
+      maxWidth: 1600,
+      imageQuality: 85,
+    );
+
+    return picked == null ? null : File(picked.path);
+  }
+
+  void _applyPhoto(File photo) {
+    final reading = _parser.parse(_sampleOcr);
+    setState(() {
+      _photo = photo;
+      _error = reading == null ? 'На фото не найдено показаний' : null;
+      if (reading != null) {
+        _readings.insert(0, reading);
+      }
+    });
+  }
+
+  void _showError(String? message) => setState(() => _error = message);
+
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Показания со снимка')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          if (_photo != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Image.file(_photo!, height: 180, fit: BoxFit.cover),
-            ),
+          if (_photo != null) _PhotoPreview(photo: _photo!),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: () => _capture(ImageSource.camera),
-                  icon: const Icon(Icons.photo_camera_outlined),
-                  label: const Text('Снять счётчик'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              IconButton.outlined(
-                tooltip: 'Из галереи',
-                onPressed: () => _capture(ImageSource.gallery),
-                icon: const Icon(Icons.photo_library_outlined),
-              ),
-            ],
-          ),
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text(_error!, style: TextStyle(color: scheme.error)),
-            ),
+          _CaptureActions(onCapture: _capture),
+          if (_error != null) _ErrorLabel(message: _error!),
           const SizedBox(height: 16),
-          for (final reading in _readings)
-            Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: ListTile(
-                leading: Icon(
-                  reading.isConfident
-                      ? Icons.check_circle_outline
-                      : Icons.help_outline,
-                  color: reading.isConfident ? scheme.primary : scheme.error,
-                ),
-                title: Text(reading.formatted),
-                subtitle: Text(
-                  'уверенность ${(reading.confidence * 100).round()}%',
-                ),
-              ),
-            ),
+          for (final reading in _readings) _ReadingTile(reading: reading),
         ],
       ),
     );
+  }
+}
+
+class _PhotoPreview extends StatelessWidget {
+  const _PhotoPreview({required this.photo});
+
+  final File photo;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: Image.file(photo, height: 180, fit: BoxFit.cover),
+    );
+  }
+}
+
+class _CaptureActions extends StatelessWidget {
+  const _CaptureActions({required this.onCapture});
+
+  final Future<void> Function(ImageSource source) onCapture;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: FilledButton.icon(
+            onPressed: () => onCapture(ImageSource.camera),
+            icon: const Icon(Icons.photo_camera_outlined),
+            label: const Text('Снять счётчик'),
+          ),
+        ),
+        const SizedBox(width: 10),
+        IconButton.outlined(
+          tooltip: 'Из галереи',
+          onPressed: () => onCapture(ImageSource.gallery),
+          icon: const Icon(Icons.photo_library_outlined),
+        ),
+      ],
+    );
+  }
+}
+
+class _ErrorLabel extends StatelessWidget {
+  const _ErrorLabel({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Text(
+        message,
+        style: TextStyle(color: Theme.of(context).colorScheme.error),
+      ),
+    );
+  }
+}
+
+class _ReadingTile extends StatelessWidget {
+  const _ReadingTile({required this.reading});
+
+  final MeterReading reading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: ListTile(
+        leading: Icon(_icon, color: _iconColor(context)),
+        title: Text(reading.formatted),
+        subtitle: Text('уверенность ${(reading.confidence * 100).round()}%'),
+      ),
+    );
+  }
+
+  IconData get _icon =>
+      reading.isConfident ? Icons.check_circle_outline : Icons.help_outline;
+
+  Color _iconColor(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return reading.isConfident ? scheme.primary : scheme.error;
   }
 }
