@@ -30,65 +30,83 @@ class _OrderDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OrderDetailsBloc, OrderDetailsState>(
-      listenWhen: (previous, current) =>
-          previous.error != current.error ||
-          previous.message != current.message,
-      listener: (context, state) {
-        final text = state.error?.message ?? state.message;
-        if (text == null) {
-          return;
-        }
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(text),
-              backgroundColor: state.error == null
-                  ? null
-                  : Theme.of(context).colorScheme.error,
-            ),
-          );
-      },
-      builder: (context, state) {
-        final order = state.order;
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(order?.number ?? 'Наряд'),
-            actions: [
-              IconButton(
-                tooltip: 'Обновить',
-                onPressed: state.isBusy
-                    ? null
-                    : () => context.read<OrderDetailsBloc>().add(
-                        const OrderDetailsRefreshed(),
-                      ),
-                icon: const Icon(Icons.sync_rounded),
-              ),
-            ],
+      listenWhen: _hasNewFeedback,
+      listener: _showFeedback,
+      builder: _buildScaffold,
+    );
+  }
+
+  bool _hasNewFeedback(OrderDetailsState previous, OrderDetailsState current) =>
+      previous.error != current.error || previous.message != current.message;
+
+  void _showFeedback(BuildContext context, OrderDetailsState state) {
+    final text = state.error?.message ?? state.message;
+    if (text != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(text),
+            backgroundColor: state.error == null
+                ? null
+                : Theme.of(context).colorScheme.error,
           ),
-          body: switch (order) {
-            null when state.isLoading => const Center(
-              child: AdaptiveProgress(),
-            ),
-            null => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  state.error?.message ?? 'Наряд не найден в кэше',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            final Order value => _OrderDetailsContent(
-              order: value,
-              state: state,
-            ),
-          },
-          bottomNavigationBar: order == null
-              ? null
-              : _ActionBar(order: order, state: state),
         );
-      },
+    }
+  }
+
+  Widget _buildScaffold(BuildContext context, OrderDetailsState state) {
+    return Scaffold(
+      appBar: _buildAppBar(context, state),
+      body: _buildBody(state),
+      bottomNavigationBar: _buildBottomBar(state),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context, OrderDetailsState state) {
+    return AppBar(
+      title: Text(state.order?.number ?? 'Наряд'),
+      actions: [
+        IconButton(
+          tooltip: 'Обновить',
+          onPressed: state.isBusy ? null : () => _refresh(context),
+          icon: const Icon(Icons.sync_rounded),
+        ),
+      ],
+    );
+  }
+
+  void _refresh(BuildContext context) =>
+      context.read<OrderDetailsBloc>().add(const OrderDetailsRefreshed());
+
+  Widget _buildBody(OrderDetailsState state) {
+    return switch (state.order) {
+      null when state.isLoading => const Center(child: AdaptiveProgress()),
+      null => _NotFound(
+        message: state.error?.message ?? 'Наряд не найден в кэше',
+      ),
+      final Order order => _OrderDetailsContent(order: order, state: state),
+    };
+  }
+
+  Widget? _buildBottomBar(OrderDetailsState state) {
+    final order = state.order;
+    return order == null ? null : _ActionBar(order: order, state: state);
+  }
+}
+
+class _NotFound extends StatelessWidget {
+  const _NotFound({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(message, textAlign: TextAlign.center),
+      ),
     );
   }
 }
