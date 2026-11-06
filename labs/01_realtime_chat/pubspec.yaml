@@ -1,0 +1,23 @@
+name: lab_realtime_chat
+description: Лаборатория 01 — WebSocket-чат с реконнектом и статусами соединения.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  core_network:
+    path: ../../packages/core_network
+  web_socket_channel: ^3.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

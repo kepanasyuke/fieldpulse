@@ -3,6 +3,10 @@ description: FieldPulse вЂ” realtime-РїСЂРёР»РѕР¶РµРЅРёР�
 publish_to: none
 version: 1.0.0+1
 
+workspace:
+  - packages/core_network
+  - labs/01_realtime_chat
+
 environment:
   sdk: ">=3.13.0 <4.0.0"
   flutter: ">=3.27.0"

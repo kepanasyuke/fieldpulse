@@ -1,0 +1,14 @@
+name: core_network
+description: Общий сетевой слой монорепо FieldPulse — Result, Failure и маппинг ошибок Dio.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+
+dependencies:
+  dio: ^5.8.0
+
+dev_dependencies:
+  flutter_lints: ^5.0.0

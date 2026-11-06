@@ -79,7 +79,15 @@ lib/
     auth/         # Firebase Auth + биометрический замок
     orders/       # домен / данные / MVI-презентация
     sync/         # очередь офлайн-мутаций, наблюдатель связности
+packages/         # общие пакеты монорепо (pub workspace)
+  core_network/   # Result, Failure, ApiClient, маппинг ошибок Dio
+labs/             # маленькие приложения-лаборатории на общих пакетах
+  01_realtime_chat/  # WebSocket-чат: статусы соединения, реконнект, тесты
 functions/        # Cloud Functions (TypeScript)
 docs/             # архитектура, ADR, производительность, соответствие вакансии
 test/             # unit + widget тесты
 ```
+
+Корневой `pubspec.yaml` — одновременно приложение FieldPulse и корень
+[pub workspace](https://dart.dev/tools/pub/workspaces): пакеты и лаборатории резолвятся
+одним `flutter pub get` из корня, версии зависимостей согласованы автоматически.
