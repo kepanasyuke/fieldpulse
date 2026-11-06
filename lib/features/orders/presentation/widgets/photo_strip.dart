@@ -22,12 +22,9 @@ class PhotoStrip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: photos.length + (onAdd != null ? 1 : 0),
         separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          if (index == photos.length) {
-            return _AddPhotoTile(onTap: onAdd!);
-          }
-          return _PhotoTile(photo: photos[index]);
-        },
+        itemBuilder: (context, index) => index == photos.length
+            ? _AddPhotoTile(onTap: onAdd!)
+            : _PhotoTile(photo: photos[index]),
       ),
     );
   }
