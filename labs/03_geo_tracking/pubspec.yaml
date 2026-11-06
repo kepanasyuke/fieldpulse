@@ -1,5 +1,5 @@
 name: lab_geo_tracking
-description: Лаборатория 03 — геолокация: расстояния, сортировка точек, разрешения.
+description: "Лаборатория 03 — геолокация: расстояния, сортировка точек, разрешения."
 version: 0.1.0
 publish_to: none
 resolution: workspace
