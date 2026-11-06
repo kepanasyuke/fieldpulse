@@ -14,6 +14,7 @@ workspace:
   - labs/05_payments
   - labs/06_push_deeplink
   - labs/07_motion_kit
+  - labs/08_charts
 
 environment:
   sdk: ">=3.13.0 <4.0.0"
