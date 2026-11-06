@@ -5,6 +5,7 @@ import 'package:fieldpulse/core/realtime/realtime_client.dart';
 import 'package:fieldpulse/features/orders/data/dto/order_comment_dto.dart';
 import 'package:fieldpulse/features/orders/data/dto/order_dto.dart';
 import 'package:fieldpulse/features/orders/data/mappers/order_mapper.dart';
+import 'package:fieldpulse/features/orders/domain/entities/order.dart';
 import 'package:fieldpulse/features/orders/domain/entities/order_event.dart';
 
 class OrderRealtimeSource {
