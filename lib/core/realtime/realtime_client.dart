@@ -69,14 +69,7 @@ class RealtimeClient {
     );
 
     try {
-      final token = await _tokenProvider();
-      final base = Uri.parse(url);
-      final uri = base.replace(
-        queryParameters: {
-          ...base.queryParameters,
-          if (token != null && token.isNotEmpty) 'token': token,
-        },
-      );
+      final uri = await _connectUri();
 
       final channel = _channelFactory(uri);
       _channel = channel;
@@ -99,23 +92,42 @@ class RealtimeClient {
     }
   }
 
-  void _handleData(Object? data) {
-    if (data is! String) {
-      return;
+  Future<Uri> _connectUri() async {
+    final token = await _tokenProvider();
+    final base = Uri.parse(url);
+    final params = _withToken(base.queryParameters, token);
+
+    return base.replace(queryParameters: params);
+  }
+
+  Map<String, String> _withToken(Map<String, String> params, String? token) {
+    if (token == null || token.isEmpty) {
+      return params;
     }
+
+    return {...params, 'token': token};
+  }
+
+  void _handleData(Object? data) {
+    if (data is String) {
+      _decode(data);
+    }
+  }
+
+  void _decode(String raw) {
     try {
-      final decoded = jsonDecode(data);
-      if (decoded is! Map<String, dynamic>) {
-        return;
-      }
-      if (decoded['type'] == 'pong') {
-        return;
-      }
-      if (!_frames.isClosed) {
-        _frames.add(decoded);
-      }
+      _emitFrame(jsonDecode(raw));
     } on FormatException catch (error) {
       debugPrint('Realtime payload is not JSON: $error');
+    }
+  }
+
+  void _emitFrame(Object? decoded) {
+    final isFrame = decoded is Map<String, dynamic>;
+    final isPong = isFrame && decoded['type'] == 'pong';
+
+    if (isFrame && !isPong && !_frames.isClosed) {
+      _frames.add(decoded);
     }
   }
 
@@ -133,14 +145,15 @@ class RealtimeClient {
 
   void _startHeartbeat() {
     _heartbeat?.cancel();
-    _heartbeat = Timer.periodic(heartbeatInterval, (_) {
-      _channel?.sink.add(
-        jsonEncode({
-          'type': 'ping',
-          'ts': DateTime.now().toUtc().toIso8601String(),
-        }),
-      );
-    });
+    _heartbeat = Timer.periodic(heartbeatInterval, (_) => _sendPing());
+  }
+
+  void _sendPing() {
+    _channel?.sink.add(jsonEncode(_pingPayload()));
+  }
+
+  Map<String, dynamic> _pingPayload() {
+    return {'type': 'ping', 'ts': DateTime.now().toUtc().toIso8601String()};
   }
 
   void _scheduleReconnect() {
