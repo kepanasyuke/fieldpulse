@@ -1,5 +1,5 @@
 import 'package:fieldpulse/core/models/coordinates.dart';
-import 'package:fieldpulse/core/utils/result.dart';
+import 'package:core_network/core_network.dart';
 import 'package:fieldpulse/features/orders/domain/entities/order.dart';
 import 'package:fieldpulse/features/orders/domain/entities/order_event.dart';
 

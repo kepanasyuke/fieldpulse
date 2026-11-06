@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:fieldpulse/core/isolates/payload_decoder.dart';
 import 'package:fieldpulse/core/network/api_client.dart';
 import 'package:fieldpulse/core/network/dio_failure_mapper.dart';
-import 'package:fieldpulse/core/utils/result.dart';
+import 'package:core_network/core_network.dart';
 import 'package:fieldpulse/features/orders/data/dto/order_dto.dart';
 
 class OrderListRemoteSource {

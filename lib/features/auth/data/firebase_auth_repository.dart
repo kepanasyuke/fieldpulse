@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:fieldpulse/core/error/failure.dart';
-import 'package:fieldpulse/core/storage/secure_token_store.dart';
-import 'package:fieldpulse/core/utils/result.dart';
+import 'package:core_network/core_network.dart';
+import 'package:core_storage/core_storage.dart';
 import 'package:fieldpulse/features/auth/domain/auth_repository.dart';
 import 'package:fieldpulse/features/auth/domain/entities/auth_user.dart';
 

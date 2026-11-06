@@ -36,6 +36,20 @@ final class ValidationFailure extends Failure {
   final Map<String, String> fieldErrors;
 }
 
+final class CacheFailure extends Failure {
+  const CacheFailure([super.message = 'Локальный кэш недоступен']);
+}
+
+final class GeolocationFailure extends Failure {
+  const GeolocationFailure([
+    super.message = 'Не удалось определить местоположение',
+  ]);
+}
+
+final class PermissionFailure extends Failure {
+  const PermissionFailure([super.message = 'Разрешение не выдано']);
+}
+
 final class UnknownFailure extends Failure {
   const UnknownFailure([super.message = 'Непредвиденная ошибка']);
 }
@@ -54,6 +68,17 @@ sealed class Result<T> {
     Err<T>(:final failure) => failure,
     Ok<T>() => null,
   };
+
+  Result<R> map<R>(R Function(T value) transform) => switch (this) {
+    Ok<T>(:final value) => Ok<R>(transform(value)),
+    Err<T>(:final failure) => Err<R>(failure),
+  };
+
+  Future<Result<R>> asyncMap<R>(Future<R> Function(T value) transform) async =>
+      switch (this) {
+        Ok<T>(:final value) => Ok<R>(await transform(value)),
+        Err<T>(:final failure) => Err<R>(failure),
+      };
 
   R fold<R>({
     required R Function(T value) ok,

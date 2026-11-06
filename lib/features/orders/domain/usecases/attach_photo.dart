@@ -1,6 +1,5 @@
-import 'package:fieldpulse/core/error/failure.dart';
+import 'package:core_network/core_network.dart';
 import 'package:fieldpulse/core/native/camera_service.dart';
-import 'package:fieldpulse/core/utils/result.dart';
 import 'package:fieldpulse/features/orders/domain/repositories/order_repository.dart';
 
 class AttachPhoto {

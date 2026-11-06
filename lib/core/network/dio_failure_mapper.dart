@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import 'package:fieldpulse/core/error/failure.dart';
+import 'package:core_network/core_network.dart';
 
 extension DioFailureMapper on Object {
   Failure toFailure() => switch (this) {

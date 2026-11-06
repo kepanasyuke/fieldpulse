@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:fieldpulse/core/config/app_config.dart';
-import 'package:fieldpulse/core/error/failure.dart';
+import 'package:core_network/core_network.dart';
 import 'package:fieldpulse/core/models/coordinates.dart';
 import 'package:fieldpulse/core/network/dio_failure_mapper.dart';
 import 'package:fieldpulse/core/network/network_monitor.dart';
 import 'package:fieldpulse/core/platform/crash_reporter.dart';
-import 'package:fieldpulse/core/storage/settings_store.dart';
+import 'package:core_storage/core_storage.dart';
 import 'package:fieldpulse/core/utils/id_generator.dart';
-import 'package:fieldpulse/core/utils/result.dart';
 import 'package:fieldpulse/features/orders/data/datasources/order_list_remote_source.dart';
 import 'package:fieldpulse/features/orders/data/datasources/order_local_data_source.dart';
 import 'package:fieldpulse/features/orders/data/datasources/order_realtime_source.dart';

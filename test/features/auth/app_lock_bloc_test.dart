@@ -2,10 +2,9 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:fieldpulse/core/error/failure.dart';
+import 'package:core_network/core_network.dart';
 import 'package:fieldpulse/core/native/biometric_service.dart';
-import 'package:fieldpulse/core/storage/settings_store.dart';
-import 'package:fieldpulse/core/utils/result.dart';
+import 'package:core_storage/core_storage.dart';
 import 'package:fieldpulse/features/auth/domain/auth_repository.dart';
 import 'package:fieldpulse/features/auth/domain/entities/auth_user.dart';
 import 'package:fieldpulse/features/auth/presentation/bloc/app_lock_bloc.dart';

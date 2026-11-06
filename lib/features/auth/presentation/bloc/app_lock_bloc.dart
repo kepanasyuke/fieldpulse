@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:fieldpulse/core/native/biometric_service.dart';
-import 'package:fieldpulse/core/storage/settings_store.dart';
+import 'package:core_storage/core_storage.dart';
 import 'package:fieldpulse/features/auth/domain/auth_repository.dart';
 
 sealed class AppLockEvent {

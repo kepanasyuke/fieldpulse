@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'package:fieldpulse/app/theme/app_theme.dart';
+import 'package:core_ui/core_ui.dart';
 import 'package:fieldpulse/features/orders/domain/entities/order.dart';
 import 'package:fieldpulse/features/orders/presentation/widgets/order_card.dart';
 

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import 'package:fieldpulse/core/storage/secure_token_store.dart';
+import 'package:core_storage/core_storage.dart';
 
 class AuthInterceptor extends QueuedInterceptor {
   AuthInterceptor({

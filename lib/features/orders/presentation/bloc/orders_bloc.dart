@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:fieldpulse/core/error/failure.dart';
+import 'package:core_network/core_network.dart';
 import 'package:fieldpulse/features/orders/domain/entities/order.dart';
 import 'package:fieldpulse/features/orders/domain/entities/order_event.dart';
 import 'package:fieldpulse/features/orders/domain/repositories/order_repository.dart';

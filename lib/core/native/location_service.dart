@@ -1,8 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 
-import 'package:fieldpulse/core/error/failure.dart';
+import 'package:core_network/core_network.dart';
 import 'package:fieldpulse/core/models/coordinates.dart';
-import 'package:fieldpulse/core/utils/result.dart';
 
 class LocationService {
   LocationService(this._geolocator);

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:fieldpulse/app/di/injector.dart';
-import 'package:fieldpulse/core/ui/adaptive.dart';
+import 'package:core_ui/core_ui.dart';
 import 'package:fieldpulse/features/auth/presentation/auth_cubit.dart';
 
 class LoginPage extends StatefulWidget {

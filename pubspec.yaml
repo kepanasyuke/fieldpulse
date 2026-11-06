@@ -5,6 +5,8 @@ version: 1.0.0+1
 
 workspace:
   - packages/core_network
+  - packages/core_storage
+  - packages/core_ui
   - labs/01_realtime_chat
   - labs/02_hive_offline
   - labs/03_geo_tracking
@@ -16,6 +18,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  core_network:
+    path: packages/core_network
+  core_storage:
+    path: packages/core_storage
+  core_ui:
+    path: packages/core_ui
   flutter_localizations:
     sdk: flutter
 

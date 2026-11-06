@@ -2,8 +2,7 @@ import 'dart:io';
 
 import 'package:image_picker/image_picker.dart';
 
-import 'package:fieldpulse/core/error/failure.dart';
-import 'package:fieldpulse/core/utils/result.dart';
+import 'package:core_network/core_network.dart';
 
 class CameraService {
   CameraService(this._picker);

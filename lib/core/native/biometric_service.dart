@@ -1,7 +1,6 @@
 import 'package:local_auth/local_auth.dart';
 
-import 'package:fieldpulse/core/error/failure.dart';
-import 'package:fieldpulse/core/utils/result.dart';
+import 'package:core_network/core_network.dart';
 
 class BiometricService {
   BiometricService(this._auth);

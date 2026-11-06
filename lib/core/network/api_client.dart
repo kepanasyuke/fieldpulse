@@ -4,7 +4,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:fieldpulse/core/config/app_config.dart';
 import 'package:fieldpulse/core/network/auth_interceptor.dart';
 import 'package:fieldpulse/core/network/retry_interceptor.dart';
-import 'package:fieldpulse/core/storage/secure_token_store.dart';
+import 'package:core_storage/core_storage.dart';
 
 class ApiClient {
   ApiClient({

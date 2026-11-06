@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:fieldpulse/app/di/injector.dart';
 import 'package:fieldpulse/app/router/app_router.dart';
 import 'package:fieldpulse/app/router/routes.dart';
-import 'package:fieldpulse/app/theme/app_theme.dart';
+import 'package:core_ui/core_ui.dart';
 import 'package:fieldpulse/core/platform/lifecycle_observer.dart';
 import 'package:fieldpulse/core/push/push_service.dart';
 import 'package:fieldpulse/features/auth/presentation/auth_cubit.dart';
