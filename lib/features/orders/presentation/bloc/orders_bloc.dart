@@ -226,6 +226,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
         status: OrdersListStatus.ready,
         allOrders: event.orders,
         visibleOrders: visible,
+        clearFailure: true,
       ),
     );
   }
@@ -250,7 +251,11 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     Emitter<OrdersState> emit,
   ) async {
     final token = ++_searchToken;
-    final orders = _applyFilter(state.allOrders, status: event.status);
+    final orders = _applyFilter(
+      state.allOrders,
+      status: event.status,
+      strict: true,
+    );
     final visible = await _searchOrders(orders: orders, query: state.query);
     if (token != _searchToken) {
       return;
@@ -303,8 +308,12 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     );
   }
 
-  List<Order> _applyFilter(List<Order> orders, {OrderStatus? status}) {
-    final filter = status ?? state.statusFilter;
+  List<Order> _applyFilter(
+    List<Order> orders, {
+    OrderStatus? status,
+    bool strict = false,
+  }) {
+    final filter = strict ? status : status ?? state.statusFilter;
     if (filter == null) {
       return orders;
     }

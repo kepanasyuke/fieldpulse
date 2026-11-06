@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:fieldpulse/app/theme/app_theme.dart';
 import 'package:fieldpulse/features/orders/domain/entities/order.dart';
@@ -42,6 +43,10 @@ Future<void> pumpCard(WidgetTester tester, Order order) => tester.pumpWidget(
 );
 
 void main() {
+  setUpAll(() async {
+    await initializeDateFormatting('ru');
+  });
+
   testWidgets('карточка показывает номер, заголовок, адрес и статус', (
     tester,
   ) async {

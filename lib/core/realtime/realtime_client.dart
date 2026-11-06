@@ -84,7 +84,7 @@ class RealtimeClient {
       _attempt = 0;
       _setStatus(RealtimeStatus.connected);
       _startHeartbeat();
-    } on Exception catch (error) {
+    } on Object catch (error) {
       debugPrint('Realtime handshake failed: $error');
       _scheduleReconnect();
     }
