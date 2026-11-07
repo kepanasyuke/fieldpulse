@@ -132,28 +132,38 @@ class OrderLocalDataSource {
     late StreamController<void> controller;
     final subscriptions = <StreamSubscription<BoxEvent>>[];
 
-    void forward(BoxEvent _) {
-      if (!controller.isClosed) {
-        controller.add(null);
-      }
-    }
-
     controller = StreamController<void>(
-      onListen: () {
-        subscriptions
-          ..add(_ordersBox.watch().listen(forward))
-          ..add(_outboxBox.watch().listen(forward));
-      },
-      onCancel: () async {
-        for (final subscription in subscriptions) {
-          await subscription.cancel();
-        }
-        subscriptions.clear();
-        await controller.close();
-      },
+      onListen: () => _listenChanges(controller, subscriptions),
+      onCancel: () => _stopWatching(controller, subscriptions),
     );
 
     return controller.stream;
+  }
+
+  void _listenChanges(
+    StreamController<void> controller,
+    List<StreamSubscription<BoxEvent>> subscriptions,
+  ) {
+    subscriptions
+      ..add(_ordersBox.watch().listen((_) => _notify(controller)))
+      ..add(_outboxBox.watch().listen((_) => _notify(controller)));
+  }
+
+  void _notify(StreamController<void> controller) {
+    if (!controller.isClosed) {
+      controller.add(null);
+    }
+  }
+
+  Future<void> _stopWatching(
+    StreamController<void> controller,
+    List<StreamSubscription<BoxEvent>> subscriptions,
+  ) async {
+    for (final subscription in subscriptions) {
+      await subscription.cancel();
+    }
+    subscriptions.clear();
+    await controller.close();
   }
 
   static bool sameOrders(List<Order> a, List<Order> b) => listEquals(a, b);
