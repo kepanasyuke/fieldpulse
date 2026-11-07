@@ -1,0 +1,10 @@
+{
+  "name": "FieldPulse Console",
+  "short_name": "FieldPulse",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#1F6FEB",
+  "description": "Консоль диспетчера FieldPulse: наряды, SLA и платежи",
+  "orientation": "any"
+}
