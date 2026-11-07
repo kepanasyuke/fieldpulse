@@ -12,11 +12,15 @@ class RealtimeChatApp extends StatelessWidget {
     return MaterialApp(
       title: 'Lab 01 · Realtime chat',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6C4CF1)),
-      ),
+      theme: _theme(),
       home: const ChatPage(),
+    );
+  }
+
+  ThemeData _theme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6C4CF1)),
     );
   }
 }
@@ -37,16 +41,8 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    _client.connection.listen((status) {
-      if (mounted) {
-        setState(() => _connection = status);
-      }
-    });
-    _client.messages.listen((message) {
-      if (mounted) {
-        setState(() => _history.add(message));
-      }
-    });
+    _client.connection.listen(_onConnection);
+    _client.messages.listen(_onMessage);
     _client.connect();
   }
 
@@ -57,104 +53,198 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  Color _statusColor(ColorScheme scheme) => switch (_connection) {
-    ChatConnection.online => scheme.primary,
-    ChatConnection.connecting => scheme.tertiary,
-    ChatConnection.offline => scheme.error,
-    ChatConnection.idle => scheme.outline,
-  };
+  void _onConnection(ChatConnection status) {
+    if (mounted) {
+      setState(() => _connection = status);
+    }
+  }
 
-  String _statusLabel() => switch (_connection) {
-    ChatConnection.online => 'На связи',
-    ChatConnection.connecting => 'Подключаемся…',
-    ChatConnection.offline => 'Нет связи, переподключаемся',
-    ChatConnection.idle => 'Ожидание',
-  };
+  void _onMessage(ChatMessage message) {
+    if (mounted) {
+      setState(() => _history.add(message));
+    }
+  }
+
+  void _send(String text) {
+    _client.send(text);
+    _input.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Realtime chat'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Icon(Icons.circle, size: 10, color: _statusColor(scheme)),
-                const SizedBox(width: 6),
-                Text(
-                  _statusLabel(),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ),
-        ],
+        actions: [_ConnectionBadge(status: _connection)],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _history.length,
-              itemBuilder: (context, index) {
-                final message = _history[index];
-                final mine = message.author == 'me';
-                return Align(
-                  alignment: mine
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    constraints: const BoxConstraints(maxWidth: 280),
-                    decoration: BoxDecoration(
-                      color: mine
-                          ? scheme.primaryContainer
-                          : scheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Text(message.text),
-                  ),
-                );
-              },
-            ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _input,
-                      decoration: const InputDecoration(hintText: 'Сообщение'),
-                      onSubmitted: (value) {
-                        _client.send(value);
-                        _input.clear();
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton.filled(
-                    onPressed: () {
-                      _client.send(_input.text);
-                      _input.clear();
-                    },
-                    icon: const Icon(Icons.send_rounded),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+      body: _ChatBody(history: _history, input: _input, onSend: _send),
+    );
+  }
+}
+
+class _ConnectionBadge extends StatelessWidget {
+  const _ConnectionBadge({required this.status});
+
+  final ChatConnection status;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: _badgeRow(context),
+    );
+  }
+
+  Widget _badgeRow(BuildContext context) {
+    return Row(children: _items(context));
+  }
+
+  List<Widget> _items(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return [
+      Icon(Icons.circle, size: 10, color: _color(theme.colorScheme)),
+      const SizedBox(width: 6),
+      Text(_label(), style: theme.textTheme.bodySmall),
+    ];
+  }
+
+  Color _color(ColorScheme scheme) {
+    return switch (status) {
+      ChatConnection.online => scheme.primary,
+      ChatConnection.connecting => scheme.tertiary,
+      ChatConnection.offline => scheme.error,
+      ChatConnection.idle => scheme.outline,
+    };
+  }
+
+  String _label() {
+    return switch (status) {
+      ChatConnection.online => 'На связи',
+      ChatConnection.connecting => 'Подключаемся…',
+      ChatConnection.offline => 'Нет связи, переподключаемся',
+      ChatConnection.idle => 'Ожидание',
+    };
+  }
+}
+
+class _ChatBody extends StatelessWidget {
+  const _ChatBody({
+    required this.history,
+    required this.input,
+    required this.onSend,
+  });
+
+  final List<ChatMessage> history;
+  final TextEditingController input;
+  final ValueChanged<String> onSend;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(child: _MessageList(history: history)),
+        _Composer(input: input, onSend: onSend),
+      ],
+    );
+  }
+}
+
+class _MessageList extends StatelessWidget {
+  const _MessageList({required this.history});
+
+  final List<ChatMessage> history;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: history.length,
+      itemBuilder: (context, index) => _MessageBubble(message: history[index]),
+    );
+  }
+}
+
+class _MessageBubble extends StatelessWidget {
+  const _MessageBubble({required this.message});
+
+  final ChatMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(alignment: _alignment(), child: _bubble(context));
+  }
+
+  Alignment _alignment() {
+    return message.author == 'me'
+        ? Alignment.centerRight
+        : Alignment.centerLeft;
+  }
+
+  Widget _bubble(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      constraints: const BoxConstraints(maxWidth: 280),
+      decoration: _decoration(context),
+      child: Text(message.text),
+    );
+  }
+
+  BoxDecoration _decoration(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isMine = message.author == 'me';
+
+    return BoxDecoration(
+      color: isMine ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(14),
+    );
+  }
+}
+
+class _Composer extends StatelessWidget {
+  const _Composer({required this.input, required this.onSend});
+
+  final TextEditingController input;
+  final ValueChanged<String> onSend;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(padding: const EdgeInsets.all(12), child: _row()),
+    );
+  }
+
+  Widget _row() {
+    return Row(children: _items());
+  }
+
+  List<Widget> _items() {
+    return [
+      Expanded(
+        child: _InputField(controller: input, onSend: onSend),
       ),
+      const SizedBox(width: 8),
+      IconButton.filled(
+        onPressed: () => onSend(input.text),
+        icon: const Icon(Icons.send_rounded),
+      ),
+    ];
+  }
+}
+
+class _InputField extends StatelessWidget {
+  const _InputField({required this.controller, required this.onSend});
+
+  final TextEditingController controller;
+  final ValueChanged<String> onSend;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      decoration: const InputDecoration(hintText: 'Сообщение'),
+      onSubmitted: onSend,
     );
   }
 }
