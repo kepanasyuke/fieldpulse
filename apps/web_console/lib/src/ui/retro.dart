@@ -115,11 +115,11 @@ class _TitleBar extends StatelessWidget {
       RetroIcon(icon),
       const SizedBox(width: 6),
       Expanded(child: _title(context)),
-      const _WindowButton(label: '–'),
+      const _WindowButton(kind: _WindowGlyph.minimize),
       const SizedBox(width: 2),
-      const _WindowButton(label: '□'),
+      const _WindowButton(kind: _WindowGlyph.maximize),
       const SizedBox(width: 2),
-      const _WindowButton(label: '✕'),
+      const _WindowButton(kind: _WindowGlyph.close),
     ];
   }
 
@@ -132,9 +132,9 @@ class _TitleBar extends StatelessWidget {
 }
 
 class _WindowButton extends StatelessWidget {
-  const _WindowButton({required this.label});
+  const _WindowButton({required this.kind});
 
-  final String label;
+  final _WindowGlyph kind;
 
   @override
   Widget build(BuildContext context) {
@@ -143,9 +143,54 @@ class _WindowButton extends StatelessWidget {
       height: 16,
       alignment: Alignment.center,
       decoration: retroBevel(),
-      child: Text(label, style: const TextStyle(fontSize: 10, height: 1)),
+      child: CustomPaint(
+        size: const Size(10, 10),
+        painter: _GlyphPainter(kind),
+      ),
     );
   }
+}
+
+enum _WindowGlyph { minimize, maximize, close }
+
+class _GlyphPainter extends CustomPainter {
+  const _GlyphPainter(this.kind);
+
+  final _WindowGlyph kind;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = RetroColors.text
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    switch (kind) {
+      case _WindowGlyph.minimize:
+        _line(canvas, paint, const Offset(1, 8), const Offset(9, 8));
+      case _WindowGlyph.maximize:
+        _square(canvas, paint);
+      case _WindowGlyph.close:
+        _cross(canvas, paint);
+    }
+  }
+
+  void _line(Canvas canvas, Paint paint, Offset from, Offset to) {
+    canvas.drawLine(from, to, paint);
+  }
+
+  void _square(Canvas canvas, Paint paint) {
+    canvas.drawRect(const Rect.fromLTWH(1.5, 1.5, 7, 7), paint);
+    canvas.drawLine(const Offset(1.5, 4), const Offset(8.5, 4), paint);
+  }
+
+  void _cross(Canvas canvas, Paint paint) {
+    _line(canvas, paint, const Offset(1.5, 1.5), const Offset(8.5, 8.5));
+    _line(canvas, paint, const Offset(8.5, 1.5), const Offset(1.5, 8.5));
+  }
+
+  @override
+  bool shouldRepaint(_GlyphPainter oldDelegate) => oldDelegate.kind != kind;
 }
 
 class RetroPanel extends StatelessWidget {
@@ -182,12 +227,15 @@ class RetroButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final face = selected ? RetroColors.mid : RetroColors.face;
 
-    return InkWell(
-      onTap: onPressed,
-      child: Container(
-        decoration: retroBevel(inset: selected).copyWith(color: face),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        child: Row(mainAxisSize: MainAxisSize.min, children: _items(context)),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          decoration: retroBevel(inset: selected).copyWith(color: face),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          child: Row(mainAxisSize: MainAxisSize.min, children: _items(context)),
+        ),
       ),
     );
   }

@@ -52,7 +52,11 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Chip(label: Text(status), visualDensity: VisualDensity.compact);
+    return Container(
+      decoration: retroBevel(inset: true),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      child: Text(status, style: Theme.of(context).textTheme.labelSmall),
+    );
   }
 }
 
