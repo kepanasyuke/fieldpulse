@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:web_console/src/console_data.dart';
+import 'package:web_console/src/ui/retro.dart';
 
 class OrderTable extends StatelessWidget {
   const OrderTable({super.key, required this.orders});
@@ -9,7 +10,7 @@ class OrderTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(child: _table());
+    return RetroPanel(padding: 0, child: _table());
   }
 
   Widget _table() {

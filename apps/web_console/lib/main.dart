@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:core_ui/core_ui.dart';
 import 'package:web_console/src/console_data.dart';
 import 'package:web_console/src/ui/console_shell.dart';
+import 'package:web_console/src/ui/retro.dart';
 
 void main() => runApp(const WebConsoleApp());
 
@@ -14,8 +14,7 @@ class WebConsoleApp extends StatelessWidget {
     return MaterialApp(
       title: 'FieldPulse · консоль диспетчера',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      theme: retroTheme(),
       home: const ConsolePage(),
     );
   }

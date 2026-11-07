@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:web_console/src/console_data.dart';
+import 'package:web_console/src/ui/retro.dart';
 
 class SummaryRow extends StatelessWidget {
   const SummaryRow({super.key, required this.metrics});
@@ -43,7 +44,7 @@ class MetricCard extends StatelessWidget {
   }
 
   Widget _card(BuildContext context) {
-    return Card(child: _body(context));
+    return RetroPanel(child: _texts(context));
   }
 
   Widget _body(BuildContext context) {

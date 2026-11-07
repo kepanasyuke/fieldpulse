@@ -3,7 +3,7 @@ library;
 
 import 'dart:io';
 
-import 'package:core_ui/core_ui.dart';
+import 'package:web_console/src/ui/retro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,7 +34,7 @@ Widget _console({String? filter}) {
 
   return MaterialApp(
     debugShowCheckedModeBanner: false,
-    theme: AppTheme.light(),
+    theme: retroTheme(),
     home: ConsoleShell(
       metrics: ConsoleMetrics.of(orders),
       filter: filter,
