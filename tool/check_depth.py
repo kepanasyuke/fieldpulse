@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Проверка логической вложенности в Dart-файлах монорепо.
+"""Проверка вложенности управляющих конструкций в Dart-файлах монорепо.
 
-Считает глубину управляющих конструкций (if/for/while/switch/try/catch),
-а не отступы: вложенность виджетов в build не учитывается.
+Считается только вложенность if/for/while/switch/try друг в друга.
+Фигурные скобки классов, методов и литералов не учитываются, поэтому
+глубина 1 - это один if внутри метода, а не "класс + метод + if".
 
 Запуск: python3 tool/check_depth.py [--max 3]
 """
@@ -12,9 +13,9 @@ import os
 import re
 import sys
 
-KEYWORDS = re.compile(r"^(if|for|while|switch|try)\b|\b(if|for|while|switch)\s*\(")
+OPENS = re.compile(r"\b(if|for|while|switch|try)\b[^{;]*\{")
 SKIP_DIRS = {".dart_tool", "build", ".git", "node_modules"}
-ROOTS = ("lib", "labs", "packages")
+ROOTS = ("lib", "labs", "packages", "apps")
 
 
 def logical_depth(path):
@@ -23,12 +24,13 @@ def logical_depth(path):
     with open(path, encoding="utf-8") as handle:
         for raw in handle:
             line = raw.split("//")[0]
-            stripped = line.strip()
-            if not stripped:
-                continue
-            is_control = bool(KEYWORDS.search(stripped))
-            best = max(best, depth + (1 if is_control else 0))
-            depth = max(0, depth + line.count("{") - line.count("}"))
+            opens = 1 if OPENS.search(line) else 0
+            if line.strip():
+                best = max(best, depth + opens)
+
+            closes = line.count("}")
+            depth = max(0, depth + opens - closes)
+
     return best
 
 
@@ -53,7 +55,7 @@ def main():
     over = [item for item in offenders if item[0] > args.max]
 
     for depth, path in over:
-        print(f"{path}: логическая вложенность {depth} > {args.max}")
+        print(f"{path}: вложенность {depth} > {args.max}")
 
     print(f"проверено файлов: {len(offenders)}, нарушений: {len(over)}")
     return 1 if over else 0
