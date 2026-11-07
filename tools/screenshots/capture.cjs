@@ -22,7 +22,10 @@ async function capture(browser, name, viewport) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
   const page = await context.newPage();
   await page.goto(`http://127.0.0.1:${PORT}`, { waitUntil: "networkidle" });
-  await page.waitForTimeout(2500);
+  await page.waitForSelector("flutter-view, flt-glass-pane, canvas", {
+    timeout: 30000,
+  });
+  await page.waitForTimeout(4000);
   const target = path.join(OUT_DIR, name);
   await page.screenshot({ path: target, fullPage: false });
   await context.close();
