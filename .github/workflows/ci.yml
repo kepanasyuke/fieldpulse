@@ -1,4 +1,4 @@
-name: CI
+﻿name: CI
 
 on:
   push:
@@ -23,28 +23,28 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Версия Flutter и Dart
+      - name: Р’РµСЂСЃРёСЏ Flutter Рё Dart
         run: flutter --version
 
-      - name: Зависимости
+      - name: Р—Р°РІРёСЃРёРјРѕСЃС‚Рё
         run: flutter pub get
 
-      - name: Кодогенерация Retrofit
+      - name: РљРѕРґРѕРіРµРЅРµСЂР°С†РёСЏ Retrofit
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Анализатор
+      - name: РђРЅР°Р»РёР·Р°С‚РѕСЂ
         run: flutter analyze
 
-      - name: Вложенность управляющих конструкций
-        run: python3 tool/check_depth.py --max 3
+      - name: Р’Р»РѕР¶РµРЅРЅРѕСЃС‚СЊ СѓРїСЂР°РІР»СЏСЋС‰РёС… РєРѕРЅСЃС‚СЂСѓРєС†РёР№
+        run: python3 tool/check_depth.py --max 2
 
-      - name: Вложенность (не больше 3)
-        run: python3 tool/check_depth.py --max 3
+      - name: Р’Р»РѕР¶РµРЅРЅРѕСЃС‚СЊ (РЅРµ Р±РѕР»СЊС€Рµ 3)
+        run: python3 tool/check_depth.py --max 2
 
-      - name: Тесты
+      - name: РўРµСЃС‚С‹
         run: flutter test --coverage
 
-      - name: Форматирование
+      - name: Р¤РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРµ
         run: dart format --output=none --set-exit-if-changed $(git ls-files lib test | grep '\.dart$')
 
       - uses: actions/upload-artifact@v4
@@ -66,10 +66,10 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Зависимости workspace
+      - name: Р—Р°РІРёСЃРёРјРѕСЃС‚Рё workspace
         run: flutter pub get
 
-      - name: Анализатор пакетов
+      - name: РђРЅР°Р»РёР·Р°С‚РѕСЂ РїР°РєРµС‚РѕРІ
         run: |
           for dir in packages/*/; do
             echo "::group::$dir"
@@ -77,7 +77,7 @@ jobs:
             echo "::endgroup::"
           done
 
-      - name: Анализатор и тесты лабораторий
+      - name: РђРЅР°Р»РёР·Р°С‚РѕСЂ Рё С‚РµСЃС‚С‹ Р»Р°Р±РѕСЂР°С‚РѕСЂРёР№
         run: |
           for dir in labs/*/; do
             echo "::group::$dir"
@@ -99,10 +99,10 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Зависимости
+      - name: Р—Р°РІРёСЃРёРјРѕСЃС‚Рё
         run: npm install --no-audit --no-fund
 
-      - name: Сборка TypeScript
+      - name: РЎР±РѕСЂРєР° TypeScript
         run: npm run build
 
   web:
@@ -116,10 +116,10 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - name: Анализатор и тесты консоли
+      - name: РђРЅР°Р»РёР·Р°С‚РѕСЂ Рё С‚РµСЃС‚С‹ РєРѕРЅСЃРѕР»Рё
         working-directory: apps/web_console
         run: flutter analyze && flutter test --exclude-tags golden
-      - name: Сборка web
+      - name: РЎР±РѕСЂРєР° web
         working-directory: apps/web_console
         run: flutter build web --release
       - uses: actions/upload-artifact@v4
