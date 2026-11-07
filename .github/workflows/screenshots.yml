@@ -6,7 +6,6 @@ on:
     branches: [main]
     paths:
       - "apps/web_console/**"
-      - "tools/screenshots/**"
 
 permissions:
   contents: write
@@ -17,9 +16,9 @@ concurrency:
 
 jobs:
   capture:
-    name: Build web and shoot screens
+    name: Golden screens and GIF
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -31,31 +30,28 @@ jobs:
       - name: Зависимости
         run: flutter pub get
 
-      - name: Сборка web
+      - name: Рендер экранов движком Flutter
         working-directory: apps/web_console
-        run: flutter build web --release
+        run: flutter test --update-goldens test/screenshot_test.dart
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Playwright
-        working-directory: tools/screenshots
+      - name: Копируем кадры в docs
         run: |
-          npm init -y
-          npm install playwright@1.49.1 --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          mkdir -p docs/screenshots
+          cp apps/web_console/test/goldens/*.png docs/screenshots/
 
-      - name: Скриншоты
-        working-directory: tools/screenshots
-        run: node capture.cjs
+      - name: Собираем GIF
+        run: |
+          cd docs/screenshots
+          ffmpeg -y -framerate 1 -i console-frame-%d.png \
+            -vf "scale=1200:-1:flags=lanczos,split[a][b];[a]palettegen[p];[b][p]paletteuse" \
+            console-demo.gif
 
-      - name: Коммит скриншотов
+      - name: Коммит
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           git add docs/screenshots
-          git diff --cached --quiet || git commit -m "docs: обновлены скриншоты консоли"
+          git diff --cached --quiet || git commit -m "docs: скриншоты и гифка консоли"
           git push
 
       - uses: actions/upload-artifact@v4
