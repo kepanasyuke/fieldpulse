@@ -38,8 +38,6 @@ jobs:
       - name: Р’Р»РѕР¶РµРЅРЅРѕСЃС‚СЊ СѓРїСЂР°РІР»СЏСЋС‰РёС… РєРѕРЅСЃС‚СЂСѓРєС†РёР№
         run: python3 tool/check_depth.py --max 2
 
-      - name: Р’Р»РѕР¶РµРЅРЅРѕСЃС‚СЊ (РЅРµ Р±РѕР»СЊС€Рµ 3)
-        run: python3 tool/check_depth.py --max 2
 
       - name: РўРµСЃС‚С‹
         run: flutter test --coverage
