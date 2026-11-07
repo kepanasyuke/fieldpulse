@@ -45,7 +45,12 @@ class OrderLocalDataSource {
   }
 
   List<Order> readOrders() {
-    final pending = _pendingOrderIds;
+    final orders = _ordersFrom(_pendingOrderIds)..sort(_byPriorityThenDate);
+
+    return orders;
+  }
+
+  List<Order> _ordersFrom(Set<String> pending) {
     final orders = <Order>[];
     for (final value in _ordersBox.values) {
       final order = _orderFrom(value, pending);
@@ -53,13 +58,16 @@ class OrderLocalDataSource {
         orders.add(order);
       }
     }
-    orders.sort((a, b) {
-      if (a.priority.index != b.priority.index) {
-        return b.priority.index.compareTo(a.priority.index);
-      }
-      return a.updatedAt.compareTo(b.updatedAt);
-    });
+
     return orders;
+  }
+
+  int _byPriorityThenDate(Order first, Order second) {
+    if (first.priority.index != second.priority.index) {
+      return second.priority.index.compareTo(first.priority.index);
+    }
+
+    return first.updatedAt.compareTo(second.updatedAt);
   }
 
   Order? findById(String orderId) {
