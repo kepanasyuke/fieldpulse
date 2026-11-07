@@ -125,70 +125,7 @@ class _OrderDetailsContent extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      OrderStatusChip(status: order.status),
-                      const SizedBox(width: 8),
-                      PriorityBadge(priority: order.priority),
-                      const Spacer(),
-                      if (order.hasPendingUpdate)
-                        Icon(
-                          Icons.cloud_upload_outlined,
-                          size: 18,
-                          color: scheme.tertiary,
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    order.title,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    order.customer,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                  if (order.slaDueAt != null) ...[
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.timer_outlined,
-                          size: 16,
-                          color: order.isOverdue
-                              ? scheme.error
-                              : scheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'SLA: ${AppDateFormat.sla(order.slaDueAt!)}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: order.isOverdue
-                                ? scheme.error
-                                : scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ),
+        _HeaderCard(order: order),
         _SectionCard(
           icon: Icons.place_outlined,
           title: 'Адрес',
@@ -380,5 +317,107 @@ class _ActionBar extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _HeaderCard extends StatelessWidget {
+  const _HeaderCard({required this.order});
+
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Card(child: _body(context)),
+    );
+  }
+
+  Widget _body(BuildContext context) {
+    return Padding(padding: const EdgeInsets.all(16), child: _column(context));
+  }
+
+  Widget _column(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _parts(context),
+    );
+  }
+
+  List<Widget> _parts(BuildContext context) {
+    return [
+      _topRow(context),
+      const SizedBox(height: 12),
+      _title(context),
+      const SizedBox(height: 8),
+      _customer(context),
+      if (order.slaDueAt != null) _slaRow(context),
+    ];
+  }
+
+  Widget _topRow(BuildContext context) {
+    return Row(children: _topItems(context));
+  }
+
+  List<Widget> _topItems(BuildContext context) {
+    return [
+      OrderStatusChip(status: order.status),
+      const SizedBox(width: 8),
+      PriorityBadge(priority: order.priority),
+      const Spacer(),
+      if (order.hasPendingUpdate) _pendingIcon(context),
+    ];
+  }
+
+  Widget _pendingIcon(BuildContext context) {
+    return Icon(
+      Icons.cloud_upload_outlined,
+      size: 18,
+      color: Theme.of(context).colorScheme.tertiary,
+    );
+  }
+
+  Widget _title(BuildContext context) {
+    final style = Theme.of(context).textTheme.titleLarge
+        ?.copyWith(fontWeight: FontWeight.w600);
+
+    return Text(order.title, style: style);
+  }
+
+  Widget _customer(BuildContext context) {
+    final style = Theme.of(context).textTheme.bodyMedium
+        ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant);
+
+    return Text(order.customer, style: style);
+  }
+
+  Widget _slaRow(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(children: _slaItems(context)),
+    );
+  }
+
+  List<Widget> _slaItems(BuildContext context) {
+    return [
+      Icon(_slaIcon, size: 16, color: _slaColor(context)),
+      const SizedBox(width: 6),
+      Text(_slaLabel(), style: _slaStyle(context)),
+    ];
+  }
+
+  IconData get _slaIcon => Icons.timer_outlined;
+
+  String _slaLabel() => 'SLA: ${AppDateFormat.sla(order.slaDueAt!)}';
+
+  TextStyle? _slaStyle(BuildContext context) {
+    return Theme.of(context).textTheme.bodySmall
+        ?.copyWith(color: _slaColor(context));
+  }
+
+  Color _slaColor(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return order.isOverdue ? scheme.error : scheme.onSurfaceVariant;
   }
 }
