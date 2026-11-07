@@ -195,21 +195,24 @@ class OrdersRepositoryImpl implements OrderRepository {
 
   @override
   Future<void> flushPendingUpdates() async {
-    if (_flushing) {
-      return;
-    }
-    _flushing = true;
-    try {
-      for (final action in _local.readPendingActions()) {
-        final sent = await _send(action);
-        if (!sent) {
-          break;
-        }
-        await _local.dropPending(action.id);
-        await _refreshPendingFlag(action.orderId);
+    if (!_flushing) {
+      _flushing = true;
+      try {
+        await _flushLoop();
+      } finally {
+        _flushing = false;
       }
-    } finally {
-      _flushing = false;
+    }
+  }
+
+  Future<void> _flushLoop() async {
+    for (final action in _local.readPendingActions()) {
+      final sent = await _send(action);
+      if (!sent) {
+        break;
+      }
+      await _local.dropPending(action.id);
+      await _refreshPendingFlag(action.orderId);
     }
   }
 
