@@ -179,10 +179,12 @@ class _LockAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return state.isVerifying ? const AdaptiveProgress() : _unlockButton();
+    return state.isVerifying
+        ? const AdaptiveProgress()
+        : _unlockButton(context);
   }
 
-  Widget _unlockButton() {
+  Widget _unlockButton(BuildContext context) {
     return FilledButton.icon(
       onPressed: state.canRetry ? () => _unlock(context) : null,
       icon: const Icon(Icons.lock_open_rounded),
