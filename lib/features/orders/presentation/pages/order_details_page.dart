@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fieldpulse/app/di/injector.dart';
 import 'package:core_ui/core_ui.dart';
 import 'package:fieldpulse/core/utils/date_format.dart';
+import 'package:fieldpulse/core/models/coordinates.dart';
 import 'package:fieldpulse/features/orders/domain/entities/order.dart';
 import 'package:fieldpulse/features/orders/presentation/bloc/order_details_bloc.dart';
 import 'package:fieldpulse/features/orders/presentation/widgets/order_status_chip.dart';
@@ -119,9 +120,6 @@ class _OrderDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
@@ -130,16 +128,7 @@ class _OrderDetailsContent extends StatelessWidget {
           icon: Icons.place_outlined,
           title: 'Адрес',
           subtitle: order.address,
-          trailing: state.checkIn == null
-              ? null
-              : Text(
-                  'Точка: '
-                  '${state.checkIn!.latitude.toStringAsFixed(4)}, '
-                  '${state.checkIn!.longitude.toStringAsFixed(4)}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
+          trailing: _checkInText(context, state.checkIn),
         ),
         if (order.comment != null && order.comment!.isNotEmpty)
           _SectionCard(
@@ -484,6 +473,23 @@ class _BusyLabel extends StatelessWidget {
       child: CircularProgressIndicator.adaptive(strokeWidth: 2),
     );
   }
+}
+
+Widget? _checkInText(BuildContext context, Coordinates? checkIn) {
+  if (checkIn == null) {
+    return null;
+  }
+  final theme = Theme.of(context);
+  final label =
+      'Точка: ${checkIn.latitude.toStringAsFixed(4)}, '
+      '${checkIn.longitude.toStringAsFixed(4)}';
+
+  return Text(
+    label,
+    style: theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    ),
+  );
 }
 
 class _HeaderCard extends StatelessWidget {
