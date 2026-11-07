@@ -4,6 +4,7 @@ publish_to: none
 version: 1.0.0+1
 
 workspace:
+  - apps/web_console
   - packages/core_network
   - packages/core_storage
   - packages/core_ui

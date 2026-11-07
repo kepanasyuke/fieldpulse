@@ -1,0 +1,22 @@
+name: web_console
+description: "Веб-консоль диспетчера: наряды, SLA и платежи поверх REST-бэкенда."
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  core_ui:
+    path: ../../packages/core_ui
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

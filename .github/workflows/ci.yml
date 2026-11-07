@@ -98,3 +98,25 @@ jobs:
 
       - name: Сборка TypeScript
         run: npm run build
+
+  web:
+    name: Web console
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Анализатор и тесты консоли
+        working-directory: apps/web_console
+        run: flutter analyze && flutter test
+      - name: Сборка web
+        working-directory: apps/web_console
+        run: flutter build web --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-console
+          path: apps/web_console/build/web
