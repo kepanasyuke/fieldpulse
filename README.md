@@ -99,3 +99,20 @@ test/             # unit + widget тесты
 Корневой `pubspec.yaml` — одновременно приложение FieldPulse и корень
 [pub workspace](https://dart.dev/tools/pub/workspaces): пакеты и лаборатории резолвятся
 одним `flutter pub get` из корня, версии зависимостей согласованы автоматически.
+
+## Интерфейс
+
+Веб-консоль диспетчера — `apps/web_console` (Flutter Web). Кадры ниже рендерит
+движок Flutter в CI (golden-тесты в `apps/web_console/test/screenshot_test.dart`),
+из трёх кадров ffmpeg собирает анимированную GIF. Скриншоты обновляются автоматически
+при изменении консоли.
+
+![Консоль диспетчера: метрики, фильтр по статусу и таблица нарядов](docs/screenshots/console-frame-1.png)
+
+Анимация: переключение фильтров по статусу.
+
+![Демонстрация: фильтры по статусу](docs/screenshots/console-demo.gif)
+
+Планшетная ширина — та же консоль в адаптивной раскладке:
+
+![Консоль диспетчера на планшете](docs/screenshots/console-tablet.png)
