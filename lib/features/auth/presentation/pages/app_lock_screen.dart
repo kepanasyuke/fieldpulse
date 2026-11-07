@@ -19,7 +19,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
   void initState() {
     super.initState();
     if (widget.locked) {
-      _scheduleUnlockRequest();
+      _requestUnlockAfterFrame();
     }
   }
 
@@ -27,11 +27,11 @@ class _AppLockScreenState extends State<AppLockScreen> {
   void didUpdateWidget(AppLockScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!oldWidget.locked && widget.locked) {
-      _scheduleUnlockRequest();
+      _requestUnlockAfterFrame();
     }
   }
 
-  void _scheduleUnlockRequest() {
+  void _requestUnlockAfterFrame() {
     WidgetsBinding.instance.addPostFrameCallback((_) => _requestUnlock());
   }
 
@@ -56,49 +56,33 @@ class _LockOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Positioned.fill(child: _LockSurface());
-  }
-}
-
-class _LockSurface extends StatelessWidget {
-  const _LockSurface();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<AppLockBloc, AppLockState>(builder: _builder);
+    return Positioned.fill(child: _overlay(context));
   }
 
-  Widget _builder(BuildContext context, AppLockState state) {
+  Widget _overlay(BuildContext context) {
+    return BlocBuilder<AppLockBloc, AppLockState>(builder: _buildLock);
+  }
+
+  Widget _buildLock(BuildContext context, AppLockState state) {
     return ColoredBox(
       color: Theme.of(context).colorScheme.surface,
-      child: _LockBody(state: state),
+      child: SafeArea(child: _LockCard(state: state)),
     );
   }
 }
 
-class _LockBody extends StatelessWidget {
-  const _LockBody({required this.state});
+class _LockCard extends StatelessWidget {
+  const _LockCard({required this.state});
 
   final AppLockState state;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(child: _LockContent(state: state)),
-    );
-  }
-}
-
-class _LockContent extends StatelessWidget {
-  const _LockContent({required this.state});
-
-  final AppLockState state;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: _LockColumn(state: state),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: _LockColumn(state: state),
+      ),
     );
   }
 }
@@ -110,70 +94,56 @@ class _LockColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: _parts());
+    return Column(mainAxisSize: MainAxisSize.min, children: _parts(context));
   }
 
-  List<Widget> _parts() {
+  List<Widget> _parts(BuildContext context) {
     return [
-      const _LockIcon(),
+      Icon(
+        Icons.fingerprint_rounded,
+        size: 72,
+        color: Theme.of(context).colorScheme.primary,
+      ),
       const SizedBox(height: 16),
-      const _LockTitle(),
+      Text(
+        'Приложение заблокировано',
+        style: Theme.of(context).textTheme.titleLarge,
+        textAlign: TextAlign.center,
+      ),
       const SizedBox(height: 8),
-      _LockHint(text: _hint()),
+      _LockHint(state: state),
       const SizedBox(height: 24),
-      _LockAction(state: state),
+      _UnlockAction(state: state),
       const SizedBox(height: 12),
-      const _LockBail(),
+      TextButton(
+        onPressed: () =>
+            context.read<AppLockBloc>().add(const AppLockReleased()),
+        child: const Text('Выйти без биометрии'),
+      ),
     ];
-  }
-
-  String _hint() =>
-      state.error ?? 'Подтвердите личность, чтобы вернуться к нарядам';
-}
-
-class _LockIcon extends StatelessWidget {
-  const _LockIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(
-      Icons.fingerprint_rounded,
-      size: 72,
-      color: Theme.of(context).colorScheme.primary,
-    );
-  }
-}
-
-class _LockTitle extends StatelessWidget {
-  const _LockTitle();
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      'Приложение заблокировано',
-      style: Theme.of(context).textTheme.titleLarge,
-      textAlign: TextAlign.center,
-    );
   }
 }
 
 class _LockHint extends StatelessWidget {
-  const _LockHint({required this.text});
+  const _LockHint({required this.state});
 
-  final String text;
+  final AppLockState state;
 
   @override
   Widget build(BuildContext context) {
+    final message =
+        state.error ?? 'Подтвердите личность, чтобы вернуться к нарядам';
+
     return Text(
-      text,
+      message,
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.bodyMedium,
     );
   }
 }
 
-class _LockAction extends StatelessWidget {
-  const _LockAction({required this.state});
+class _UnlockAction extends StatelessWidget {
+  const _UnlockAction({required this.state});
 
   final AppLockState state;
 
@@ -181,36 +151,26 @@ class _LockAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return state.isVerifying
         ? const AdaptiveProgress()
-        : _unlockButton(context);
+        : _UnlockButton(state: state);
   }
-
-  Widget _unlockButton(BuildContext context) {
-    return FilledButton.icon(
-      onPressed: state.canRetry ? () => _unlock(context) : null,
-      icon: const Icon(Icons.lock_open_rounded),
-      label: Text(_label()),
-    );
-  }
-
-  void _unlock(BuildContext context) {
-    context.read<AppLockBloc>().add(const AppLockUnlockRequested());
-  }
-
-  String _label() => state.canRetry ? 'Разблокировать' : 'Попытки исчерпаны';
 }
 
-class _LockBail extends StatelessWidget {
-  const _LockBail();
+class _UnlockButton extends StatelessWidget {
+  const _UnlockButton({required this.state});
+
+  final AppLockState state;
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () => _release(context),
-      child: const Text('Выйти без биометрии'),
+    return FilledButton.icon(
+      onPressed: state.canRetry ? _unlock(context) : null,
+      icon: const Icon(Icons.lock_open_rounded),
+      label: Text(state.canRetry ? 'Разблокировать' : 'Попытки исчерпаны'),
     );
   }
 
-  void _release(BuildContext context) {
-    context.read<AppLockBloc>().add(const AppLockReleased());
+  VoidCallback _unlock(BuildContext context) {
+    return () =>
+        context.read<AppLockBloc>().add(const AppLockUnlockRequested());
   }
 }
