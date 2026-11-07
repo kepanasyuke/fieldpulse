@@ -31,19 +31,27 @@ class OrderLocalDataSource {
   Set<String> get _pendingOrderIds =>
       readPendingActions().map((action) => action.orderId).toSet();
 
+  Order? _orderFrom(Object? value, Set<String> pending) {
+    if (value is! Map<dynamic, dynamic>) {
+      return null;
+    }
+    final dto = OrderDto.fromJson(Map<String, dynamic>.from(value));
+    if (dto.id.isEmpty) {
+      return null;
+    }
+    final order = _mapper.toDomain(dto);
+
+    return order.copyWith(hasPendingUpdate: pending.contains(order.id));
+  }
+
   List<Order> readOrders() {
     final pending = _pendingOrderIds;
     final orders = <Order>[];
     for (final value in _ordersBox.values) {
-      if (value is! Map<dynamic, dynamic>) {
-        continue;
+      final order = _orderFrom(value, pending);
+      if (order != null) {
+        orders.add(order);
       }
-      final dto = OrderDto.fromJson(Map<String, dynamic>.from(value));
-      if (dto.id.isEmpty) {
-        continue;
-      }
-      final order = _mapper.toDomain(dto);
-      orders.add(order.copyWith(hasPendingUpdate: pending.contains(order.id)));
     }
     orders.sort((a, b) {
       if (a.priority.index != b.priority.index) {
