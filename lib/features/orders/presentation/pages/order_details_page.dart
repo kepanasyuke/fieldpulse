@@ -316,41 +316,81 @@ class _SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, size: 20, color: theme.colorScheme.primary),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(subtitle, style: theme.textTheme.bodyMedium),
-                    if (trailing != null) ...[
-                      const SizedBox(height: 6),
-                      trailing!,
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
+        child: _SectionBody(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          trailing: trailing,
         ),
       ),
     );
+  }
+}
+
+class _SectionBody extends StatelessWidget {
+  const _SectionBody({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.trailing,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(padding: const EdgeInsets.all(16), child: _row(context));
+  }
+
+  Widget _row(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _items(context),
+    );
+  }
+
+  List<Widget> _items(BuildContext context) {
+    return [
+      _icon(context),
+      const SizedBox(width: 12),
+      Expanded(child: _texts(context)),
+    ];
+  }
+
+  Widget _icon(BuildContext context) {
+    return Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary);
+  }
+
+  Widget _texts(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _parts(context),
+    );
+  }
+
+  List<Widget> _parts(BuildContext context) {
+    return [
+      _title(context),
+      const SizedBox(height: 4),
+      Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+      if (trailing != null) const SizedBox(height: 6),
+      if (trailing != null) trailing!,
+    ];
+  }
+
+  Widget _title(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.labelLarge?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+
+    return Text(title, style: style);
   }
 }
 
@@ -369,40 +409,79 @@ class _ActionBar extends StatelessWidget {
 
     return SafeArea(
       minimum: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      child: Row(
-        children: [
-          IconButton.outlined(
-            tooltip: 'Сделать фото',
-            onPressed: state.isBusy
-                ? null
-                : () => context.read<OrderDetailsBloc>().add(
-                    const OrderDetailsPhotoRequested(),
-                  ),
-            icon: const Icon(Icons.photo_camera_outlined),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(
-              onPressed: primary == null || state.isBusy
-                  ? null
-                  : () => context.read<OrderDetailsBloc>().add(
-                      OrderDetailsStatusRequested(primary),
-                    ),
-              child: state.isBusy
-                  ? const SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator.adaptive(strokeWidth: 2),
-                    )
-                  : Text(
-                      primary?.actionLabel ??
-                          (order.status.isTerminal
-                              ? 'Наряд закрыт'
-                              : 'Нет действий'),
-                    ),
-            ),
-          ),
-        ],
+      child: Row(children: _items(context, primary)),
+    );
+  }
+
+  List<Widget> _items(BuildContext context, OrderStatus? primary) {
+    return [
+      _CameraButton(state: state),
+      const SizedBox(width: 12),
+      Expanded(
+        child: _PrimaryButton(state: state, order: order, primary: primary),
       ),
+    ];
+  }
+}
+
+class _CameraButton extends StatelessWidget {
+  const _CameraButton({required this.state});
+
+  final OrderDetailsState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton.outlined(
+      tooltip: 'Сделать фото',
+      onPressed: state.isBusy ? null : () => _request(context),
+      icon: const Icon(Icons.photo_camera_outlined),
+    );
+  }
+
+  void _request(BuildContext context) {
+    context.read<OrderDetailsBloc>().add(const OrderDetailsPhotoRequested());
+  }
+}
+
+class _PrimaryButton extends StatelessWidget {
+  const _PrimaryButton({
+    required this.state,
+    required this.order,
+    required this.primary,
+  });
+
+  final OrderDetailsState state;
+  final Order order;
+  final OrderStatus? primary;
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      onPressed: _canPress ? () => _request(context) : null,
+      child: state.isBusy ? const _BusyLabel() : Text(_label),
+    );
+  }
+
+  bool get _canPress => primary != null && !state.isBusy;
+
+  String get _label => primary?.actionLabel ?? _fallback;
+
+  String get _fallback =>
+      order.status.isTerminal ? 'Наряд закрыт' : 'Нет действий';
+
+  void _request(BuildContext context) {
+    context.read<OrderDetailsBloc>().add(OrderDetailsStatusRequested(primary!));
+  }
+}
+
+class _BusyLabel extends StatelessWidget {
+  const _BusyLabel();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.square(
+      dimension: 20,
+      child: CircularProgressIndicator.adaptive(strokeWidth: 2),
     );
   }
 }
