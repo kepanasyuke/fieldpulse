@@ -47,10 +47,6 @@ class MetricCard extends StatelessWidget {
     return RetroPanel(child: _texts(context));
   }
 
-  Widget _body(BuildContext context) {
-    return Padding(padding: const EdgeInsets.all(16), child: _texts(context));
-  }
-
   Widget _texts(BuildContext context) {
     final theme = Theme.of(context);
 
