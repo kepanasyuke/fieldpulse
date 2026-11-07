@@ -49,8 +49,10 @@ async function main() {
   const server = await serve();
   const browser = await chromium.launch({
     args: [
-      "--use-gl=swiftshader",
-      "--enable-webgl",
+      "--headless=new",
+      "--use-angle=swiftshader",
+      "--use-gl=angle",
+      "--enable-unsafe-swiftshader",
       "--disable-dev-shm-usage",
       "--no-sandbox",
     ],

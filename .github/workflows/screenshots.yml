@@ -2,6 +2,11 @@ name: Screenshots
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "apps/web_console/**"
+      - "tools/screenshots/**"
 
 permissions:
   contents: write
