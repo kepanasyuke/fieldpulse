@@ -2,8 +2,9 @@
 """Проверка вложенности управляющих конструкций в Dart-файлах монорепо.
 
 Считается только вложенность if/for/while/switch/try друг в друга.
-Фигурные скобки классов, методов и литералов не учитываются, поэтому
-глубина 1 - это один if внутри метода, а не "класс + метод + if".
+Скобки классов, тел методов, литералов и замыканий уровнем не считаются,
+поэтому глубина 1 - это один if внутри метода, а 3 - предельно допустимая
+цепочка вида "for -> if -> switch".
 
 Запуск: python3 tool/check_depth.py [--max 3]
 """
@@ -13,23 +14,34 @@ import os
 import re
 import sys
 
-OPENS = re.compile(r"\b(if|for|while|switch|try)\b[^{;]*\{")
+CONTROL = re.compile(r"^(if|for|while|switch|try)\b|\b(if|for|while|switch|try)\s*\(")
 SKIP_DIRS = {".dart_tool", "build", ".git", "node_modules"}
 ROOTS = ("lib", "labs", "packages", "apps")
 
 
 def logical_depth(path):
-    depth = 0
+    stack = []
     best = 0
     with open(path, encoding="utf-8") as handle:
         for raw in handle:
             line = raw.split("//")[0]
-            opens = 1 if OPENS.search(line) else 0
-            if line.strip():
-                best = max(best, depth + opens)
+            stripped = line.strip()
+            if not stripped:
+                continue
 
-            closes = line.count("}")
-            depth = max(0, depth + opens - closes)
+            is_control = bool(CONTROL.match(stripped)) or bool(
+                re.search(r"\b(if|for|while|switch)\s*\(", stripped)
+            )
+            if is_control:
+                best = max(best, sum(stack) + 1)
+
+            first = True
+            for char in line:
+                if char == "{":
+                    stack.append(1 if (first and is_control) else 0)
+                    first = False
+                elif char == "}" and stack:
+                    stack.pop()
 
     return best
 
@@ -55,7 +67,7 @@ def main():
     over = [item for item in offenders if item[0] > args.max]
 
     for depth, path in over:
-        print(f"{path}: вложенность {depth} > {args.max}")
+        print(f"{path}: логическая вложенность {depth} > {args.max}")
 
     print(f"проверено файлов: {len(offenders)}, нарушений: {len(over)}")
     return 1 if over else 0

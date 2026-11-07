@@ -35,6 +35,9 @@ jobs:
       - name: Анализатор
         run: flutter analyze
 
+      - name: Вложенность управляющих конструкций
+        run: python3 tool/check_depth.py --max 3
+
       - name: Вложенность (не больше 3)
         run: python3 tool/check_depth.py --max 3
 
