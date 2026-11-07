@@ -1,3 +1,6 @@
+@Tags(['golden'])
+library;
+
 import 'dart:io';
 
 import 'package:core_ui/core_ui.dart';

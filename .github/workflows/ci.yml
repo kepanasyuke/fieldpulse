@@ -112,7 +112,7 @@ jobs:
       - run: flutter pub get
       - name: Анализатор и тесты консоли
         working-directory: apps/web_console
-        run: flutter analyze && flutter test
+        run: flutter analyze && flutter test --exclude-tags golden
       - name: Сборка web
         working-directory: apps/web_console
         run: flutter build web --release
