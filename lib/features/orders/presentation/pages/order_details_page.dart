@@ -147,69 +147,156 @@ class _OrderDetailsContent extends StatelessWidget {
             title: 'Комментарий диспетчера',
             subtitle: order.comment!,
           ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Text(
-            'Фотоотчёт',
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        PhotoStrip(
-          photos: order.photos,
-          onAdd: state.isBusy
-              ? null
-              : () => context.read<OrderDetailsBloc>().add(
-                  const OrderDetailsPhotoRequested(),
-                ),
-        ),
-        if (order.status.nextSteps.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Следующие шаги',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                for (final step in order.status.nextSteps)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: OutlinedButton.icon(
-                      onPressed: state.isBusy
-                          ? null
-                          : () => context.read<OrderDetailsBloc>().add(
-                              OrderDetailsStatusRequested(step),
-                            ),
-                      icon: Icon(
-                        step == OrderStatus.cancelled
-                            ? Icons.close_rounded
-                            : Icons.arrow_forward_rounded,
-                      ),
-                      label: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(step.actionLabel),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Обновлён ${AppDateFormat.dayTime(order.updatedAt)}',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-        ),
+        _PhotosSection(order: order, state: state),
+        _NextStepsSection(order: order, state: state),
+        _UpdatedLabel(order: order),
       ],
+    );
+  }
+}
+
+class _PhotosSection extends StatelessWidget {
+  const _PhotosSection({required this.order, required this.state});
+
+  final Order order;
+  final OrderDetailsState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _parts(context),
+    );
+  }
+
+  List<Widget> _parts(BuildContext context) {
+    return [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+        child: _caption(context),
+      ),
+      PhotoStrip(photos: order.photos, onAdd: _onAdd(context)),
+    ];
+  }
+
+  Widget _caption(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Text(
+      'Фотоотчёт',
+      style: theme.textTheme.titleSmall?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+
+  VoidCallback? _onAdd(BuildContext context) {
+    return state.isBusy ? null : () => _requestPhoto(context);
+  }
+
+  void _requestPhoto(BuildContext context) {
+    context.read<OrderDetailsBloc>().add(const OrderDetailsPhotoRequested());
+  }
+}
+
+class _NextStepsSection extends StatelessWidget {
+  const _NextStepsSection({required this.order, required this.state});
+
+  final Order order;
+  final OrderDetailsState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return order.status.nextSteps.isEmpty
+        ? const SizedBox.shrink()
+        : _section(context);
+  }
+
+  Widget _section(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _parts(context),
+      ),
+    );
+  }
+
+  List<Widget> _parts(BuildContext context) {
+    return [
+      _caption(context),
+      const SizedBox(height: 8),
+      for (final step in order.status.nextSteps)
+        _StepButton(step: step, state: state),
+    ];
+  }
+
+  Widget _caption(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Text(
+      'Следующие шаги',
+      style: theme.textTheme.titleSmall?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+class _StepButton extends StatelessWidget {
+  const _StepButton({required this.step, required this.state});
+
+  final OrderStatus step;
+  final OrderDetailsState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: _button(context),
+    );
+  }
+
+  Widget _button(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: state.isBusy ? null : () => _request(context),
+      icon: Icon(_icon),
+      label: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(step.actionLabel),
+      ),
+    );
+  }
+
+  void _request(BuildContext context) {
+    context.read<OrderDetailsBloc>().add(OrderDetailsStatusRequested(step));
+  }
+
+  IconData get _icon => step == OrderStatus.cancelled
+      ? Icons.close_rounded
+      : Icons.arrow_forward_rounded;
+}
+
+class _UpdatedLabel extends StatelessWidget {
+  const _UpdatedLabel({required this.order});
+
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Text(_label(), style: _style(context)),
+    );
+  }
+
+  String _label() => 'Обновлён ${AppDateFormat.dayTime(order.updatedAt)}';
+
+  TextStyle? _style(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
     );
   }
 }
