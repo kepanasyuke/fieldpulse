@@ -1,4 +1,4 @@
-const { spawn } = require("node:child_process");
+﻿const { spawn } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
@@ -22,7 +22,7 @@ async function capture(browser, name, viewport) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
   const page = await context.newPage();
   await page.goto(`http://127.0.0.1:${PORT}`, { waitUntil: "networkidle" });
-  await page.waitForTimeout(8000);
+  await page.waitForTimeout(12000);
   const target = path.join(OUT_DIR, name);
   await page.screenshot({ path: target, fullPage: false });
   await context.close();
@@ -33,7 +33,14 @@ async function capture(browser, name, viewport) {
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const server = await serve();
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({
+    args: [
+      "--use-gl=swiftshader",
+      "--enable-webgl",
+      "--disable-dev-shm-usage",
+      "--no-sandbox",
+    ],
+  });
 
   const shots = [
     await capture(browser, "console-desktop.png", { width: 1440, height: 900 }),
