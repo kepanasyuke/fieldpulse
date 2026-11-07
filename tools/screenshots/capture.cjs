@@ -24,10 +24,24 @@ async function capture(browser, name, viewport) {
   await page.goto(`http://127.0.0.1:${PORT}`, { waitUntil: "networkidle" });
   await page.waitForTimeout(12000);
   const target = path.join(OUT_DIR, name);
+  await assertNotBlank(page, name);
   await page.screenshot({ path: target, fullPage: false });
   await context.close();
 
   return target;
+}
+
+async function assertNotBlank(page, name) {
+  const blanks = await page.evaluate(() => {
+    const canvas = document.querySelector("canvas");
+    if (!canvas) {
+      return true;
+    }
+    return canvas.width === 0 || canvas.height === 0;
+  });
+  if (blanks) {
+    throw new Error(`${name}: Flutter-канвас не отрисован, скриншот пустой`);
+  }
 }
 
 async function main() {
