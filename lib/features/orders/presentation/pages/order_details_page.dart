@@ -334,29 +334,65 @@ class _SectionBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: const EdgeInsets.all(16), child: _row(context));
-  }
-
-  Widget _row(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: _items(context),
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: _SectionRow(
+        icon: icon,
+        title: title,
+        subtitle: subtitle,
+        trailing: trailing,
+      ),
     );
   }
+}
 
-  List<Widget> _items(BuildContext context) {
-    return [
-      _icon(context),
-      const SizedBox(width: 12),
-      Expanded(child: _texts(context)),
-    ];
+class _SectionRow extends StatelessWidget {
+  const _SectionRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.trailing,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: theme.colorScheme.primary),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _SectionTexts(
+            title: title,
+            subtitle: subtitle,
+            trailing: trailing,
+          ),
+        ),
+      ],
+    );
   }
+}
 
-  Widget _icon(BuildContext context) {
-    return Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary);
-  }
+class _SectionTexts extends StatelessWidget {
+  const _SectionTexts({
+    required this.title,
+    required this.subtitle,
+    this.trailing,
+  });
 
-  Widget _texts(BuildContext context) {
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: _parts(context),
