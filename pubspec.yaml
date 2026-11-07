@@ -16,6 +16,7 @@ workspace:
   - labs/06_push_deeplink
   - labs/07_motion_kit
   - labs/08_charts
+  - labs/09_auth_biometrics
 
 environment:
   sdk: ">=3.13.0 <4.0.0"
